@@ -258,7 +258,7 @@ Message: ${similarForm.message}
               )}
 
               {product.status === 'on_hold' && (
-                <div className="absolute top-6 right-6 bg-yellow-500 text-black px-6 py-3 text-sm font-bold tracking-wider">
+                <div className="absolute top-6 right-6 bg-red-900 text-white px-6 py-3 text-sm font-bold tracking-wider">
                   ON HOLD
                 </div>
               )}
@@ -381,7 +381,7 @@ Message: ${similarForm.message}
                 <>
                   <button
                     onClick={() => setShowHoldModal(true)}
-                    className="w-full px-6 py-4 bg-yellow-500 text-black font-bold tracking-wider hover:bg-yellow-600 transition"
+                    className="w-full px-6 py-4 bg-red-900 text-white font-bold tracking-wider hover:bg-red-800 transition"
                   >
                     PLACE ON HOLD (45 DAYS)
                   </button>
@@ -395,7 +395,7 @@ Message: ${similarForm.message}
               )}
 
               {product.status === 'on_hold' && activeHold && (
-                <div className="p-4 bg-yellow-50 border-2 border-yellow-500">
+                <div className="p-4 bg-red-50 border-2 border-red-900">
                   <p className="font-bold tracking-wider mb-2">ITEM ON HOLD</p>
                   <p className="text-sm font-light">
                     this item is on hold until{' '}
@@ -429,7 +429,7 @@ Message: ${similarForm.message}
         <Modal onClose={() => setShowHoldModal(false)} title="PLACE ITEM ON HOLD">
           <form onSubmit={handlePlaceHold} className="space-y-4">
             <p className="text-sm text-gray-600 mb-4 font-light">
-              place this item on hold for 45 days. we'll contact you to complete the purchase.
+              place this item on hold for 45 days. we'll contact you to complete the purchase or extend the hold in a few weeks. if you need immediate assistance, please call 785.232.8008
             </p>
             <input
               type="text"
@@ -457,7 +457,7 @@ Message: ${similarForm.message}
             />
             <button
               type="submit"
-              className="w-full px-6 py-3 bg-yellow-500 text-black font-bold tracking-wider hover:bg-yellow-600 transition"
+              className="w-full px-6 py-3 bg-red-900 text-white font-bold tracking-wider hover:bg-red-800 transition"
             >
               CONFIRM HOLD
             </button>
