@@ -25,6 +25,34 @@ export type Database = {
         Insert: Omit<Database['public']['Tables']['subcategories']['Row'], 'id' | 'created_at'>;
         Update: Partial<Database['public']['Tables']['subcategories']['Insert']>;
       };
+      consignors: {
+        Row: {
+          id: string;
+          first_name: string;
+          last_name: string;
+          consignor_code: string;
+          email: string | null;
+          phone: string | null;
+          address: string | null;
+          commission_rate: number;
+          notes: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['consignors']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['consignors']['Insert']>;
+      };
+      sku_counters: {
+        Row: {
+          id: string;
+          category_id: string;
+          current_count: number;
+          last_updated: string;
+        };
+        Insert: Omit<Database['public']['Tables']['sku_counters']['Row'], 'id' | 'last_updated'>;
+        Update: Partial<Database['public']['Tables']['sku_counters']['Insert']>;
+      };
       products: {
         Row: {
           id: string;
@@ -43,7 +71,9 @@ export type Database = {
           status: 'available' | 'on_hold' | 'sold';
           featured_image_url: string | null;
           consignor: string | null;
+          consignor_id: string | null;
           workflow_stage: 'research' | 'descriptions' | 'photos' | 'ready' | 'listed';
+          workflow_stage_updated_at: string | null;
           is_featured: boolean;
           category_id: string | null;
           subcategory_id: string | null;
@@ -150,9 +180,12 @@ export type Database = {
 
 export type Category = Database['public']['Tables']['categories']['Row'];
 export type Subcategory = Database['public']['Tables']['subcategories']['Row'];
+export type Consignor = Database['public']['Tables']['consignors']['Row'];
+export type SKUCounter = Database['public']['Tables']['sku_counters']['Row'];
 export type Product = Database['public']['Tables']['products']['Row'] & {
   category?: { name: string; slug: string } | null;
   subcategory?: { name: string; slug: string } | null;
+  consignor_details?: Consignor | null;
 };
 export type ProductImage = Database['public']['Tables']['product_images']['Row'];
 export type ProductHold = Database['public']['Tables']['product_holds']['Row'];

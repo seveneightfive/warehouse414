@@ -11,19 +11,25 @@ import {
   XCircle,
   Mail,
   Clock,
+  Users,
+  ListTodo,
 } from 'lucide-react';
 import Layout from '../components/Layout';
 import { supabase } from '../lib/supabase';
-import type { Product, ProductOffer, ProductSale, ProductHold, Category, Subcategory } from '../lib/types';
+import type { Product, ProductOffer, ProductSale, ProductHold, Category, Subcategory, Consignor } from '../lib/types';
+import ConsignorManagement from '../components/ConsignorManagement';
+import WorkflowTaskManagement from '../components/WorkflowTaskManagement';
+import ConsignorReports from '../components/ConsignorReports';
 
 export default function Admin() {
-  const [activeTab, setActiveTab] = useState<'products' | 'offers' | 'sales' | 'holds'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'offers' | 'sales' | 'holds' | 'consignors' | 'tasks' | 'reports'>('products');
   const [products, setProducts] = useState<Product[]>([]);
   const [offers, setOffers] = useState<ProductOffer[]>([]);
   const [sales, setSales] = useState<ProductSale[]>([]);
   const [holds, setHolds] = useState<ProductHold[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [consignors, setConsignors] = useState<Consignor[]>([]);
   const [filteredSubcategories, setFilteredSubcategories] = useState<Subcategory[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -45,6 +51,7 @@ export default function Admin() {
     is_on_sale: false,
     featured_image_url: '',
     consignor: '',
+    consignor_id: '',
     workflow_stage: 'research' as const,
     is_featured: false,
     category_id: '',
@@ -54,6 +61,7 @@ export default function Admin() {
   useEffect(() => {
     fetchAdminData();
     fetchCategories();
+    fetchConsignors();
   }, []);
 
   useEffect(() => {
@@ -118,6 +126,38 @@ export default function Admin() {
     }
   };
 
+  const fetchConsignors = async () => {
+    try {
+      const { data: consignorsData } = await supabase
+        .from('consignors')
+        .select('*')
+        .eq('is_active', true)
+        .order('last_name', { ascending: true });
+
+      setConsignors(consignorsData || []);
+    } catch (error) {
+      console.error('Error fetching consignors:', error);
+    }
+  };
+
+  const generateSKU = async (consignorId: string, categoryId: string): Promise<string> => {
+    try {
+      const consignor = consignors.find((c) => c.id === consignorId);
+      if (!consignor) return '';
+
+      const { data, error } = await supabase.rpc('generate_sku', {
+        consignor_code_input: consignor.consignor_code,
+        category_id_input: categoryId,
+      });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error generating SKU:', error);
+      return '';
+    }
+  };
+
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -137,6 +177,7 @@ export default function Admin() {
         is_on_sale: productForm.is_on_sale,
         featured_image_url: productForm.featured_image_url || null,
         consignor: productForm.consignor || null,
+        consignor_id: productForm.consignor_id || null,
         workflow_stage: productForm.workflow_stage,
         is_featured: productForm.is_featured,
         category_id: productForm.category_id || null,
@@ -183,6 +224,7 @@ export default function Admin() {
       is_on_sale: false,
       featured_image_url: '',
       consignor: '',
+      consignor_id: '',
       workflow_stage: 'research',
       is_featured: false,
       category_id: '',
@@ -209,6 +251,7 @@ export default function Admin() {
       is_on_sale: product.is_on_sale,
       featured_image_url: product.featured_image_url || '',
       consignor: product.consignor || '',
+      consignor_id: product.consignor_id || '',
       workflow_stage: product.workflow_stage,
       is_featured: product.is_featured,
       category_id: product.category_id || '',
@@ -320,10 +363,10 @@ export default function Admin() {
           </div>
         </div>
 
-        <div className="flex gap-4 mb-8 border-b-2 border-gray-200">
+        <div className="flex gap-4 mb-8 border-b-2 border-gray-200 overflow-x-auto">
           <button
             onClick={() => setActiveTab('products')}
-            className={`px-6 py-3 font-bold tracking-wider ${
+            className={`px-6 py-3 font-bold tracking-wider whitespace-nowrap ${
               activeTab === 'products'
                 ? 'border-b-4 border-black'
                 : 'text-gray-500 hover:text-black'
@@ -332,8 +375,28 @@ export default function Admin() {
             INVENTORY
           </button>
           <button
+            onClick={() => setActiveTab('consignors')}
+            className={`px-6 py-3 font-bold tracking-wider whitespace-nowrap ${
+              activeTab === 'consignors'
+                ? 'border-b-4 border-black'
+                : 'text-gray-500 hover:text-black'
+            }`}
+          >
+            CONSIGNORS
+          </button>
+          <button
+            onClick={() => setActiveTab('tasks')}
+            className={`px-6 py-3 font-bold tracking-wider whitespace-nowrap ${
+              activeTab === 'tasks'
+                ? 'border-b-4 border-black'
+                : 'text-gray-500 hover:text-black'
+            }`}
+          >
+            TASKS
+          </button>
+          <button
             onClick={() => setActiveTab('offers')}
-            className={`px-6 py-3 font-bold tracking-wider ${
+            className={`px-6 py-3 font-bold tracking-wider whitespace-nowrap ${
               activeTab === 'offers'
                 ? 'border-b-4 border-black'
                 : 'text-gray-500 hover:text-black'
@@ -343,7 +406,7 @@ export default function Admin() {
           </button>
           <button
             onClick={() => setActiveTab('sales')}
-            className={`px-6 py-3 font-bold tracking-wider ${
+            className={`px-6 py-3 font-bold tracking-wider whitespace-nowrap ${
               activeTab === 'sales'
                 ? 'border-b-4 border-black'
                 : 'text-gray-500 hover:text-black'
@@ -353,13 +416,23 @@ export default function Admin() {
           </button>
           <button
             onClick={() => setActiveTab('holds')}
-            className={`px-6 py-3 font-bold tracking-wider ${
+            className={`px-6 py-3 font-bold tracking-wider whitespace-nowrap ${
               activeTab === 'holds'
                 ? 'border-b-4 border-black'
                 : 'text-gray-500 hover:text-black'
             }`}
           >
             ON HOLD
+          </button>
+          <button
+            onClick={() => setActiveTab('reports')}
+            className={`px-6 py-3 font-bold tracking-wider whitespace-nowrap ${
+              activeTab === 'reports'
+                ? 'border-b-4 border-black'
+                : 'text-gray-500 hover:text-black'
+            }`}
+          >
+            REPORTS
           </button>
         </div>
 
@@ -510,16 +583,49 @@ export default function Admin() {
                       }
                       className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                     />
-                    <input
-                      type="text"
-                      placeholder="Consignor"
-                      value={productForm.consignor}
+                    <select
+                      value={productForm.consignor_id}
                       onChange={(e) =>
-                        setProductForm({ ...productForm, consignor: e.target.value })
+                        setProductForm({ ...productForm, consignor_id: e.target.value })
                       }
                       className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
-                    />
+                    >
+                      <option value="">Select Consignor</option>
+                      {consignors.map((consignor) => (
+                        <option key={consignor.id} value={consignor.id}>
+                          {consignor.consignor_code} - {consignor.first_name} {consignor.last_name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
+
+                  {productForm.consignor_id && productForm.category_id && !editingProduct && (
+                    <div className="p-4 bg-blue-50 border border-blue-200">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-bold mb-1">Auto-Generate SKU</p>
+                          <p className="text-xs text-gray-600">
+                            Click to generate a unique SKU for this product
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const sku = await generateSKU(
+                              productForm.consignor_id,
+                              productForm.category_id
+                            );
+                            if (sku) {
+                              setProductForm({ ...productForm, sku });
+                            }
+                          }}
+                          className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 transition font-bold tracking-wider"
+                        >
+                          GENERATE SKU
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <select
@@ -837,6 +943,12 @@ export default function Admin() {
             )}
           </div>
         )}
+
+        {activeTab === 'consignors' && <ConsignorManagement />}
+
+        {activeTab === 'tasks' && <WorkflowTaskManagement />}
+
+        {activeTab === 'reports' && <ConsignorReports />}
 
         {activeTab === 'holds' && (
           <div>
