@@ -1,0 +1,17 @@
+@import url('https://fonts.cdnfonts.com/css/agency-fb');
+@import url('https://fonts.cdnfonts.com/css/kabel');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Kabel', 'Arial', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Agency FB', 'Arial Narrow', sans-serif;
+    font-weight: bold;
+  }
+}
