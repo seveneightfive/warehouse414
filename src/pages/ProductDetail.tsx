@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, Tag, X } from 'lucide-react';
+import { Download, Tag, X, Mail } from 'lucide-react';
 import Layout from '../components/Layout';
 import { supabase } from '../lib/supabase';
 import type { Product, ProductImage, ProductHold } from '../lib/types';
@@ -20,6 +20,7 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
   const [showOfferModal, setShowOfferModal] = useState(false);
   const [showSimilarModal, setShowSimilarModal] = useState(false);
   const [showPDFModal, setShowPDFModal] = useState(false);
+  const [showInterestModal, setShowInterestModal] = useState(false);
 
   const [holdForm, setHoldForm] = useState({
     name: '',
@@ -44,6 +45,12 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
   const [pdfForm, setPdfForm] = useState({
     email: '',
     includePrice: true,
+  });
+
+  const [interestForm, setInterestForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
   });
 
   useEffect(() => {
@@ -205,6 +212,52 @@ Message: ${similarForm.message}
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Error processing request. Please try again.');
+    }
+  };
+
+  const handleExpressInterest = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!product) return;
+
+    try {
+      const { error: dbError } = await supabase.from('hold_interest_notifications').insert({
+        product_id: productId,
+        customer_name: interestForm.name,
+        customer_email: interestForm.email,
+        customer_phone: interestForm.phone,
+      });
+
+      if (dbError) throw dbError;
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-hold-interest-notification`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            productTitle: product.title,
+            productSku: product.sku,
+            customerName: interestForm.name,
+            customerEmail: interestForm.email,
+            customerPhone: interestForm.phone,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to send notification');
+      }
+
+      alert('Thank you for your interest! We will contact you if this item becomes available.');
+      setShowInterestModal(false);
+      setInterestForm({ name: '', email: '', phone: '' });
+    } catch (error) {
+      console.error('Error submitting interest:', error);
+      alert('Error submitting your interest. Please try again or call us at 785.232.8008');
     }
   };
 
@@ -395,12 +448,21 @@ Message: ${similarForm.message}
               )}
 
               {product.status === 'on_hold' && activeHold && (
-                <div className="p-4 bg-red-50 border-2 border-red-900">
-                  <p className="font-bold tracking-wider mb-2">ITEM ON HOLD</p>
-                  <p className="text-sm font-light">
-                    this item is on hold until{' '}
-                    {new Date(activeHold.hold_until).toLocaleDateString()}
-                  </p>
+                <div className="space-y-3">
+                  <div className="p-4 bg-red-50 border-2 border-red-900">
+                    <p className="font-bold tracking-wider mb-2">ITEM ON HOLD</p>
+                    <p className="text-sm font-light">
+                      this item is on hold until{' '}
+                      {new Date(activeHold.hold_until).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowInterestModal(true)}
+                    className="w-full px-6 py-4 border-2 border-black text-black font-bold tracking-wider hover:bg-black hover:text-white transition flex items-center justify-center gap-2"
+                  >
+                    <Mail className="w-5 h-5" />
+                    ARE YOU INTERESTED IN THIS ITEM? LET US KNOW
+                  </button>
                 </div>
               )}
 
@@ -592,6 +654,46 @@ Message: ${similarForm.message}
               className="w-full px-6 py-3 bg-black text-white font-bold tracking-wider hover:bg-gray-800 transition"
             >
               SEND PDF
+            </button>
+          </form>
+        </Modal>
+      )}
+
+      {showInterestModal && (
+        <Modal onClose={() => setShowInterestModal(false)} title="EXPRESS INTEREST">
+          <form onSubmit={handleExpressInterest} className="space-y-4">
+            <p className="text-sm text-gray-600 mb-4 font-light">
+              interested in this item? let us know and we'll contact you if it becomes available.
+            </p>
+            <input
+              type="text"
+              required
+              placeholder="Full Name"
+              value={interestForm.name}
+              onChange={(e) => setInterestForm({ ...interestForm, name: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+            />
+            <input
+              type="email"
+              required
+              placeholder="Email"
+              value={interestForm.email}
+              onChange={(e) => setInterestForm({ ...interestForm, email: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+            />
+            <input
+              type="tel"
+              required
+              placeholder="Phone Number"
+              value={interestForm.phone}
+              onChange={(e) => setInterestForm({ ...interestForm, phone: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+            />
+            <button
+              type="submit"
+              className="w-full px-6 py-3 bg-black text-white font-bold tracking-wider hover:bg-gray-800 transition"
+            >
+              NOTIFY ME
             </button>
           </form>
         </Modal>
