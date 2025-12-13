@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, Tag, X, Mail, ChevronDown } from 'lucide-react';
+import { Download, Tag, X, Mail, ChevronDown, ArrowLeft } from 'lucide-react';
 import Layout from '../components/Layout';
 import { supabase } from '../lib/supabase';
 import type { Product, ProductImage, ProductHold } from '../lib/types';
@@ -297,6 +297,14 @@ Message: ${similarForm.message}
   return (
     <Layout>
       <div className="container mx-auto px-4 py-12">
+        <button
+          onClick={() => window.history.back()}
+          className="flex items-center gap-2 mb-6 text-black hover:text-gray-600 transition group"
+        >
+          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+          <span className="font-medium tracking-wider">BACK TO SHOP</span>
+        </button>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div>
             <div className="relative aspect-square bg-gray-100 mb-4">
