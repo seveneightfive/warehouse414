@@ -1,13 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
 import { Filter, X, ChevronRight, Home } from 'lucide-react';
 import Layout from '../components/Layout';
 import ProductCard from '../components/ProductCard';
 import { supabase } from '../lib/supabase';
 import type { Product, Category, Subcategory } from '../lib/types';
+import { useShopState } from '../contexts/ShopStateContext';
 
 const ITEMS_PER_PAGE = 60;
 
 export default function Shop() {
+  const { saveState, getState, clearState } = useShopState();
   const [products, setProducts] = useState<Product[]>([]);
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,9 +35,30 @@ export default function Shop() {
     priceMax: '',
   });
 
+  const [isRestoringState, setIsRestoringState] = useState(false);
+
   useEffect(() => {
-    initializeFromURL();
-    fetchCategories();
+    const savedState = getState();
+
+    if (savedState) {
+      setIsRestoringState(true);
+      setProducts(savedState.products);
+      setDisplayedProducts(savedState.displayedProducts);
+      setCurrentPage(savedState.currentPage);
+      setSearchQuery(savedState.searchQuery);
+      setShowFilters(savedState.showFilters);
+      setCategories(savedState.categories);
+      setSubcategories(savedState.subcategories);
+      setSelectedCategory(savedState.selectedCategory);
+      setSelectedSubcategory(savedState.selectedSubcategory);
+      setFilters(savedState.filters);
+      setLoading(false);
+
+      clearState();
+    } else {
+      initializeFromURL();
+      fetchCategories();
+    }
   }, []);
 
   useEffect(() => {
@@ -45,8 +68,20 @@ export default function Shop() {
   }, [selectedCategory]);
 
   useEffect(() => {
-    fetchProducts();
+    if (!isRestoringState) {
+      fetchProducts();
+    }
   }, [selectedCategory, selectedSubcategory, filters, searchQuery]);
+
+  useLayoutEffect(() => {
+    if (isRestoringState) {
+      const savedState = getState();
+      if (savedState && savedState.scrollPosition > 0) {
+        window.scrollTo(0, savedState.scrollPosition);
+      }
+      setIsRestoringState(false);
+    }
+  }, [isRestoringState]);
 
   useEffect(() => {
     updateDisplayedProducts();
@@ -265,7 +300,20 @@ export default function Shop() {
   };
 
   const handleProductClick = (productId: string) => {
-    window.location.href = `/product/${productId}`;
+    saveState({
+      products,
+      displayedProducts,
+      currentPage,
+      searchQuery,
+      showFilters,
+      categories,
+      subcategories,
+      selectedCategory,
+      selectedSubcategory,
+      filters,
+    });
+
+    window.history.pushState({}, '', `/product/${productId}`);
   };
 
   if (loading) {

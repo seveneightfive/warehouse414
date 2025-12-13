@@ -3,6 +3,7 @@ import Home from './pages/Home';
 import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
 import Admin from './pages/Admin';
+import { ShopStateProvider } from './contexts/ShopStateContext';
 
 function App() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -56,7 +57,11 @@ function App() {
     );
   };
 
-  return routes();
+  return (
+    <ShopStateProvider>
+      {routes()}
+    </ShopStateProvider>
+  );
 }
 
 export default App;
