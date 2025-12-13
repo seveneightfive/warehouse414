@@ -55,7 +55,7 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
         </h3>
 
         {product.short_description && (
-          <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+          <p className="text-sm text-gray-600 line-clamp-2 mb-3 font-light">
             {product.short_description}
           </p>
         )}
@@ -74,14 +74,14 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
           </div>
 
           {product.designer && (
-            <span className="text-xs text-gray-500 tracking-wide">
+            <span className="text-xs text-gray-500 tracking-wide font-light">
               {product.designer}
             </span>
           )}
         </div>
 
         {product.dimensions && (
-          <p className="text-xs text-gray-500 mt-2">{product.dimensions}</p>
+          <p className="text-xs text-gray-500 mt-2 font-light">{product.dimensions}</p>
         )}
 
         {product.category && (

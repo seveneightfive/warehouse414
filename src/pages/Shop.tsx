@@ -331,8 +331,8 @@ export default function Shop() {
             <h1 className="text-4xl font-bold tracking-wider mb-2">
               {selectedCategory ? selectedCategory.name.toUpperCase() : 'SHOP'}
             </h1>
-            <p className="text-gray-600">
-              Showing {displayedProducts.length} of {products.length} {products.length === 1 ? 'item' : 'items'}
+            <p className="text-gray-600 font-light lowercase">
+              showing {displayedProducts.length} of {products.length} {products.length === 1 ? 'item' : 'items'}
             </p>
           </div>
 
@@ -359,7 +359,7 @@ export default function Shop() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-bold mb-2 tracking-wider">STATUS</label>
+                <label className="block text-sm font-bold mb-2 tracking-wider lowercase">status</label>
                 <select
                   value={filters.status}
                   onChange={(e) =>
@@ -374,7 +374,7 @@ export default function Shop() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold mb-2 tracking-wider">DESIGNER</label>
+                <label className="block text-sm font-bold mb-2 tracking-wider lowercase">designer</label>
                 <input
                   type="text"
                   value={filters.designer}
@@ -385,7 +385,7 @@ export default function Shop() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold mb-2 tracking-wider">MATERIAL</label>
+                <label className="block text-sm font-bold mb-2 tracking-wider lowercase">material</label>
                 <input
                   type="text"
                   value={filters.material}
@@ -396,7 +396,7 @@ export default function Shop() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold mb-2 tracking-wider">MIN PRICE</label>
+                <label className="block text-sm font-bold mb-2 tracking-wider lowercase">min price</label>
                 <input
                   type="number"
                   value={filters.priceMin}
@@ -407,7 +407,7 @@ export default function Shop() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold mb-2 tracking-wider">MAX PRICE</label>
+                <label className="block text-sm font-bold mb-2 tracking-wider lowercase">max price</label>
                 <input
                   type="number"
                   value={filters.priceMax}
@@ -425,23 +425,23 @@ export default function Shop() {
                     onChange={(e) => setFilters({ ...filters, onSale: e.target.checked })}
                     className="w-5 h-5"
                   />
-                  <span className="text-sm font-bold tracking-wider">ON SALE ONLY</span>
+                  <span className="text-sm font-bold tracking-wider lowercase">on sale only</span>
                 </label>
               </div>
             </div>
 
             <button
               onClick={resetFilters}
-              className="mt-6 px-6 py-2 text-sm tracking-wider underline hover:no-underline transition"
+              className="mt-6 px-6 py-2 text-sm tracking-wider underline hover:no-underline transition font-light lowercase"
             >
-              Reset All Filters
+              reset all filters
             </button>
           </div>
         )}
 
         {products.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-xl text-gray-600">No products found matching your criteria.</p>
+            <p className="text-xl text-gray-600 font-light lowercase">no products found matching your criteria.</p>
             <button
               onClick={resetFilters}
               className="mt-4 px-6 py-3 bg-black text-white hover:bg-gray-800 transition tracking-wider"
@@ -464,14 +464,14 @@ export default function Shop() {
             {hasMore && (
               <div ref={observerTarget} className="flex justify-center py-12">
                 {loadingMore && (
-                  <div className="text-xl tracking-wider animate-pulse">Loading more items...</div>
+                  <div className="text-xl tracking-wider animate-pulse font-light lowercase">loading more items...</div>
                 )}
               </div>
             )}
 
             {!hasMore && displayedProducts.length > 0 && (
               <div className="text-center py-12">
-                <p className="text-gray-600">You've reached the end of the catalog</p>
+                <p className="text-gray-600 font-light lowercase">you've reached the end of the catalog</p>
               </div>
             )}
           </>

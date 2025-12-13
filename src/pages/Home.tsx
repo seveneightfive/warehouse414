@@ -80,8 +80,8 @@ export default function Home() {
       <section className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold tracking-wider mb-4">FEATURED COLLECTION</h2>
-          <p className="text-gray-600 text-lg">
-            Curated pieces for the discerning collector
+          <p className="text-gray-600 text-lg font-light lowercase">
+            curated pieces for the discerning collector
           </p>
         </div>
 
@@ -109,8 +109,8 @@ export default function Home() {
           </>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-600 text-lg">
-              New featured items coming soon. Check back later!
+            <p className="text-gray-600 text-lg font-light">
+              new featured items coming soon. check back later!
             </p>
             <a
               href="/shop"
@@ -127,8 +127,8 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold tracking-wider mb-4">WHAT OUR CLIENTS SAY</h2>
-            <p className="text-gray-600 text-lg">
-              Trusted by collectors and designers worldwide
+            <p className="text-gray-600 text-lg font-light">
+              trusted by collectors and designers worldwide
             </p>
           </div>
 
@@ -152,7 +152,7 @@ export default function Home() {
                     ))}
                   </div>
 
-                  <p className="text-gray-700 mb-4 leading-relaxed">
+                  <p className="text-gray-700 mb-4 leading-relaxed font-light">
                     {review.review_text}
                   </p>
 
@@ -162,7 +162,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-gray-600">No reviews yet. Be the first to share your experience!</p>
+              <p className="text-gray-600 font-light">no reviews yet. be the first to share your experience!</p>
             </div>
           )}
         </div>
@@ -172,8 +172,8 @@ export default function Home() {
       <section className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold tracking-wider mb-4">OH, THE PLACES YOU'LL GO</h2>
-          <p className="text-gray-600 text-lg mb-8">
-            Find us on your favorite marketplaces
+          <p className="text-gray-600 text-lg mb-8 font-light">
+            find us on your favorite marketplaces
           </p>
         </div>
 
@@ -187,7 +187,7 @@ export default function Home() {
             <div className="text-2xl font-bold mb-2 group-hover:scale-105 transition">
               1stDibs
             </div>
-            <p className="text-sm text-gray-600">Luxury Marketplace</p>
+            <p className="text-sm text-gray-600 font-light lowercase">luxury marketplace</p>
           </a>
 
           <a
@@ -199,7 +199,7 @@ export default function Home() {
             <div className="text-2xl font-bold mb-2 group-hover:scale-105 transition">
               Charish
             </div>
-            <p className="text-sm text-gray-600">Curated Vintage</p>
+            <p className="text-sm text-gray-600 font-light lowercase">curated vintage</p>
           </a>
 
           <a
@@ -211,7 +211,7 @@ export default function Home() {
             <div className="text-2xl font-bold mb-2 group-hover:scale-105 transition">
               eBay
             </div>
-            <p className="text-sm text-gray-600">Global Marketplace</p>
+            <p className="text-sm text-gray-600 font-light lowercase">global marketplace</p>
           </a>
         </div>
       </section>

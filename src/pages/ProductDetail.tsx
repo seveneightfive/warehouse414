@@ -321,56 +321,56 @@ Message: ${similarForm.message}
             </div>
 
             {product.short_description && (
-              <p className="text-lg text-gray-700 mb-6">{product.short_description}</p>
+              <p className="text-lg text-gray-700 mb-6 font-light">{product.short_description}</p>
             )}
 
             <div className="space-y-3 mb-8 text-sm">
               {product.category && (
                 <div className="flex">
-                  <span className="font-bold w-32 tracking-wider">CATEGORY:</span>
-                  <span>{product.category.name}</span>
+                  <span className="font-bold w-32 tracking-wider lowercase">category:</span>
+                  <span className="font-light">{product.category.name}</span>
                 </div>
               )}
               {product.subcategory && product.subcategory.slug !== 'all' && (
                 <div className="flex">
-                  <span className="font-bold w-32 tracking-wider">SUBCATEGORY:</span>
-                  <span>{product.subcategory.name}</span>
+                  <span className="font-bold w-32 tracking-wider lowercase">subcategory:</span>
+                  <span className="font-light">{product.subcategory.name}</span>
                 </div>
               )}
               {product.designer && (
                 <div className="flex">
-                  <span className="font-bold w-32 tracking-wider">DESIGNER:</span>
-                  <span>{product.designer}</span>
+                  <span className="font-bold w-32 tracking-wider lowercase">designer:</span>
+                  <span className="font-light">{product.designer}</span>
                 </div>
               )}
               {product.maker && (
                 <div className="flex">
-                  <span className="font-bold w-32 tracking-wider">MAKER:</span>
-                  <span>{product.maker}</span>
+                  <span className="font-bold w-32 tracking-wider lowercase">maker:</span>
+                  <span className="font-light">{product.maker}</span>
                 </div>
               )}
               {product.material && (
                 <div className="flex">
-                  <span className="font-bold w-32 tracking-wider">MATERIAL:</span>
-                  <span>{product.material}</span>
+                  <span className="font-bold w-32 tracking-wider lowercase">material:</span>
+                  <span className="font-light">{product.material}</span>
                 </div>
               )}
               {product.dimensions && (
                 <div className="flex">
-                  <span className="font-bold w-32 tracking-wider">DIMENSIONS:</span>
-                  <span>{product.dimensions}</span>
+                  <span className="font-bold w-32 tracking-wider lowercase">dimensions:</span>
+                  <span className="font-light">{product.dimensions}</span>
                 </div>
               )}
               <div className="flex">
-                <span className="font-bold w-32 tracking-wider">SKU:</span>
-                <span>{product.sku}</span>
+                <span className="font-bold w-32 tracking-wider lowercase">sku:</span>
+                <span className="font-light">{product.sku}</span>
               </div>
             </div>
 
             {product.full_description && (
               <div className="mb-8">
                 <h2 className="text-xl font-bold tracking-wider mb-3">DESCRIPTION</h2>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                <p className="text-gray-700 leading-relaxed whitespace-pre-line font-light">
                   {product.full_description}
                 </p>
               </div>
@@ -397,8 +397,8 @@ Message: ${similarForm.message}
               {product.status === 'on_hold' && activeHold && (
                 <div className="p-4 bg-yellow-50 border-2 border-yellow-500">
                   <p className="font-bold tracking-wider mb-2">ITEM ON HOLD</p>
-                  <p className="text-sm">
-                    This item is on hold until{' '}
+                  <p className="text-sm font-light">
+                    this item is on hold until{' '}
                     {new Date(activeHold.hold_until).toLocaleDateString()}
                   </p>
                 </div>
@@ -428,8 +428,8 @@ Message: ${similarForm.message}
       {showHoldModal && (
         <Modal onClose={() => setShowHoldModal(false)} title="PLACE ITEM ON HOLD">
           <form onSubmit={handlePlaceHold} className="space-y-4">
-            <p className="text-sm text-gray-600 mb-4">
-              Place this item on hold for 45 days. We'll contact you to complete the purchase.
+            <p className="text-sm text-gray-600 mb-4 font-light">
+              place this item on hold for 45 days. we'll contact you to complete the purchase.
             </p>
             <input
               type="text"
@@ -468,8 +468,8 @@ Message: ${similarForm.message}
       {showOfferModal && (
         <Modal onClose={() => setShowOfferModal(false)} title="MAKE AN OFFER">
           <form onSubmit={handleMakeOffer} className="space-y-4">
-            <p className="text-sm text-gray-600 mb-4">
-              Submit your offer and we'll review it. Our team will contact you within 24-48 hours.
+            <p className="text-sm text-gray-600 mb-4 font-light">
+              submit your offer and we'll review it. our team will contact you within 24-48 hours.
             </p>
             <input
               type="text"
@@ -525,8 +525,8 @@ Message: ${similarForm.message}
       {showSimilarModal && (
         <Modal onClose={() => setShowSimilarModal(false)} title="REQUEST SIMILAR ITEM">
           <form onSubmit={handleRequestSimilar} className="space-y-4">
-            <p className="text-sm text-gray-600 mb-4">
-              Looking for something similar? Let us know and we'll reach out if we find a match.
+            <p className="text-sm text-gray-600 mb-4 font-light">
+              looking for something similar? let us know and we'll reach out if we find a match.
             </p>
             <input
               type="text"
@@ -565,8 +565,8 @@ Message: ${similarForm.message}
       {showPDFModal && (
         <Modal onClose={() => setShowPDFModal(false)} title="DOWNLOAD SPEC SHEET">
           <form onSubmit={handleDownloadPDF} className="space-y-4">
-            <p className="text-sm text-gray-600 mb-4">
-              Enter your email to receive the product specification sheet as a PDF.
+            <p className="text-sm text-gray-600 mb-4 font-light">
+              enter your email to receive the product specification sheet as a pdf.
             </p>
             <input
               type="email"
@@ -585,7 +585,7 @@ Message: ${similarForm.message}
                 }
                 className="w-5 h-5"
               />
-              <span className="text-sm">Include pricing information</span>
+              <span className="text-sm font-light">include pricing information</span>
             </label>
             <button
               type="submit"
