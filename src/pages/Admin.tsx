@@ -39,6 +39,7 @@ export default function Admin() {
     designer: '',
     material: '',
     dimensions: '',
+    crate_size: '',
     price: '',
     sale_price: '',
     is_on_sale: false,
@@ -130,6 +131,7 @@ export default function Admin() {
         designer: productForm.designer || null,
         material: productForm.material || null,
         dimensions: productForm.dimensions || null,
+        crate_size: productForm.crate_size || null,
         price: parseFloat(productForm.price),
         sale_price: productForm.sale_price ? parseFloat(productForm.sale_price) : null,
         is_on_sale: productForm.is_on_sale,
@@ -175,6 +177,7 @@ export default function Admin() {
       designer: '',
       material: '',
       dimensions: '',
+      crate_size: '',
       price: '',
       sale_price: '',
       is_on_sale: false,
@@ -200,6 +203,7 @@ export default function Admin() {
       designer: product.designer || '',
       material: product.material || '',
       dimensions: product.dimensions || '',
+      crate_size: product.crate_size || '',
       price: product.price.toString(),
       sale_price: product.sale_price?.toString() || '',
       is_on_sale: product.is_on_sale,
@@ -448,16 +452,33 @@ export default function Admin() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input
-                      type="text"
-                      placeholder="Dimensions"
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Dimensions</label>
+                    <textarea
+                      placeholder="Enter detailed dimensions (e.g., Height: 42 Inches, Width: 25 Inches, etc.)"
                       value={productForm.dimensions}
                       onChange={(e) =>
                         setProductForm({ ...productForm, dimensions: e.target.value })
                       }
-                      className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                      rows={6}
+                      className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Crate / Box Size</label>
+                    <textarea
+                      placeholder="Crated Size:&#10;- Length: &#10;- Width: &#10;- Height: &#10;- Weight: "
+                      value={productForm.crate_size}
+                      onChange={(e) =>
+                        setProductForm({ ...productForm, crate_size: e.target.value })
+                      }
+                      rows={5}
+                      className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input
                       type="number"
                       required

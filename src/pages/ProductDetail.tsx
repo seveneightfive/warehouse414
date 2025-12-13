@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, Tag, X, Mail } from 'lucide-react';
+import { Download, Tag, X, Mail, ChevronDown } from 'lucide-react';
 import Layout from '../components/Layout';
 import { supabase } from '../lib/supabase';
 import type { Product, ProductImage, ProductHold } from '../lib/types';
@@ -52,6 +52,8 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
     email: '',
     phone: '',
   });
+
+  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProductData();
@@ -483,6 +485,58 @@ Message: ${similarForm.message}
                 DOWNLOAD SPEC SHEET
               </button>
             </div>
+
+            {(product.dimensions || product.crate_size) && (
+              <div className="mt-8 border-t pt-8">
+                <h2 className="text-2xl font-light mb-6">additional information</h2>
+
+                {product.dimensions && (
+                  <div className="mb-4">
+                    <button
+                      onClick={() => setOpenAccordion(openAccordion === 'dimensions' ? null : 'dimensions')}
+                      className="w-full bg-black text-white px-6 py-4 font-bold tracking-wider text-left flex items-center justify-between hover:bg-gray-800 transition"
+                    >
+                      dimensions
+                      <ChevronDown
+                        className={`w-5 h-5 transition-transform ${
+                          openAccordion === 'dimensions' ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </button>
+                    {openAccordion === 'dimensions' && (
+                      <div className="border border-t-0 border-black p-6 bg-white">
+                        <div className="font-light whitespace-pre-line">
+                          {product.dimensions}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {product.crate_size && (
+                  <div className="mb-4">
+                    <button
+                      onClick={() => setOpenAccordion(openAccordion === 'crate' ? null : 'crate')}
+                      className="w-full bg-black text-white px-6 py-4 font-bold tracking-wider text-left flex items-center justify-between hover:bg-gray-800 transition"
+                    >
+                      crate / box size
+                      <ChevronDown
+                        className={`w-5 h-5 transition-transform ${
+                          openAccordion === 'crate' ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </button>
+                    {openAccordion === 'crate' && (
+                      <div className="border border-t-0 border-black p-6 bg-white">
+                        <div className="font-light whitespace-pre-line">
+                          {product.crate_size}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

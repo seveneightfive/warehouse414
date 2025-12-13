@@ -36,6 +36,7 @@ export type Database = {
           designer: string | null;
           material: string | null;
           dimensions: string | null;
+          crate_size: string | null;
           price: number;
           sale_price: number | null;
           is_on_sale: boolean;
