@@ -9,16 +9,19 @@ import {
   Eye,
   CheckCircle,
   XCircle,
+  Mail,
+  Clock,
 } from 'lucide-react';
 import Layout from '../components/Layout';
 import { supabase } from '../lib/supabase';
-import type { Product, ProductOffer, ProductSale, Category, Subcategory } from '../lib/types';
+import type { Product, ProductOffer, ProductSale, ProductHold, Category, Subcategory } from '../lib/types';
 
 export default function Admin() {
-  const [activeTab, setActiveTab] = useState<'products' | 'offers' | 'sales'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'offers' | 'sales' | 'holds'>('products');
   const [products, setProducts] = useState<Product[]>([]);
   const [offers, setOffers] = useState<ProductOffer[]>([]);
   const [sales, setSales] = useState<ProductSale[]>([]);
+  const [holds, setHolds] = useState<ProductHold[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [filteredSubcategories, setFilteredSubcategories] = useState<Subcategory[]>([]);
@@ -78,9 +81,16 @@ export default function Admin() {
         .select('*')
         .order('sale_date', { ascending: false });
 
+      const { data: holdsData } = await supabase
+        .from('product_holds')
+        .select('*')
+        .eq('is_active', true)
+        .order('hold_date', { ascending: false });
+
       setProducts(productsData || []);
       setOffers(offersData || []);
       setSales(salesData || []);
+      setHolds(holdsData || []);
     } catch (error) {
       console.error('Error fetching admin data:', error);
     } finally {
@@ -219,6 +229,37 @@ export default function Admin() {
     }
   };
 
+  const handleExtendHold = async (holdId: string) => {
+    try {
+      const hold = holds.find((h) => h.id === holdId);
+      if (!hold) return;
+
+      const currentHoldUntil = new Date(hold.hold_until);
+      const newHoldUntil = new Date(currentHoldUntil);
+      newHoldUntil.setDate(newHoldUntil.getDate() + 30);
+
+      const { error } = await supabase
+        .from('product_holds')
+        .update({ hold_until: newHoldUntil.toISOString() })
+        .eq('id', holdId);
+
+      if (error) throw error;
+      alert('Hold extended for 30 days successfully!');
+      fetchAdminData();
+    } catch (error) {
+      console.error('Error extending hold:', error);
+      alert('Error extending hold. Please try again.');
+    }
+  };
+
+  const calculateDaysUntilExpiration = (holdUntil: string) => {
+    const expiration = new Date(holdUntil);
+    const today = new Date();
+    const diffTime = expiration.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
   const stats = {
     totalProducts: products.length,
     availableProducts: products.filter((p) => p.status === 'available').length,
@@ -284,7 +325,7 @@ export default function Admin() {
                 : 'text-gray-500 hover:text-black'
             }`}
           >
-            PRODUCTS
+            INVENTORY
           </button>
           <button
             onClick={() => setActiveTab('offers')}
@@ -306,12 +347,22 @@ export default function Admin() {
           >
             SALES
           </button>
+          <button
+            onClick={() => setActiveTab('holds')}
+            className={`px-6 py-3 font-bold tracking-wider ${
+              activeTab === 'holds'
+                ? 'border-b-4 border-black'
+                : 'text-gray-500 hover:text-black'
+            }`}
+          >
+            ON HOLD
+          </button>
         </div>
 
         {activeTab === 'products' && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold tracking-wider">PRODUCT MANAGEMENT</h2>
+              <h2 className="text-2xl font-bold tracking-wider">INVENTORY MANAGEMENT</h2>
               <button
                 onClick={() => {
                   resetForm();
@@ -618,7 +669,7 @@ export default function Admin() {
             <h2 className="text-2xl font-bold tracking-wider mb-6">PENDING OFFERS</h2>
 
             {offers.length === 0 ? (
-              <div className="text-center py-12 text-gray-600">No offers yet.</div>
+              <div className="text-center py-12 text-gray-600 font-light lowercase">no offers yet.</div>
             ) : (
               <div className="space-y-4">
                 {offers.map((offer) => {
@@ -648,27 +699,24 @@ export default function Admin() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                           <p className="text-sm">
-                            <span className="font-bold">Customer:</span> {offer.customer_name}
+                            <span className="font-bold">Customer:</span> <span className="font-light">{offer.customer_name}</span>
                           </p>
                           <p className="text-sm">
-                            <span className="font-bold">Email:</span> {offer.customer_email}
+                            <span className="font-bold">Email:</span> <span className="font-light">{offer.customer_email}</span>
                           </p>
                           <p className="text-sm">
-                            <span className="font-bold">Phone:</span> {offer.customer_phone}
+                            <span className="font-bold">Phone:</span> <span className="font-light">{offer.customer_phone}</span>
                           </p>
                         </div>
                         <div>
                           <p className="text-sm">
-                            <span className="font-bold">Offer Amount:</span> $
-                            {offer.offer_amount.toLocaleString()}
+                            <span className="font-bold">Offer Amount:</span> <span className="font-light">${offer.offer_amount.toLocaleString()}</span>
                           </p>
                           <p className="text-sm">
-                            <span className="font-bold">Original Price:</span> $
-                            {product?.price.toLocaleString()}
+                            <span className="font-bold">Original Price:</span> <span className="font-light">${product?.price.toLocaleString()}</span>
                           </p>
                           <p className="text-sm">
-                            <span className="font-bold">Submitted:</span>{' '}
-                            {new Date(offer.created_at).toLocaleDateString()}
+                            <span className="font-bold">Submitted:</span> <span className="font-light">{new Date(offer.created_at).toLocaleDateString()}</span>
                           </p>
                         </div>
                       </div>
@@ -676,7 +724,7 @@ export default function Admin() {
                       {offer.message && (
                         <div className="mb-4">
                           <p className="text-sm font-bold mb-1">Message:</p>
-                          <p className="text-sm text-gray-700">{offer.message}</p>
+                          <p className="text-sm text-gray-700 font-light">{offer.message}</p>
                         </div>
                       )}
 
@@ -711,7 +759,7 @@ export default function Admin() {
             <h2 className="text-2xl font-bold tracking-wider mb-6">SALES TRACKING</h2>
 
             {sales.length === 0 ? (
-              <div className="text-center py-12 text-gray-600">No sales recorded yet.</div>
+              <div className="text-center py-12 text-gray-600 font-light lowercase">no sales recorded yet.</div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
@@ -742,14 +790,14 @@ export default function Admin() {
                           <td className="px-4 py-3 text-sm">
                             <div>
                               <p className="font-bold">{product?.title || 'Unknown'}</p>
-                              <p className="text-xs text-gray-600">{product?.sku}</p>
+                              <p className="text-xs text-gray-600 font-light">{product?.sku}</p>
                             </div>
                           </td>
                           <td className="px-4 py-3 text-sm font-bold">
                             ${sale.sale_price.toLocaleString()}
                           </td>
-                          <td className="px-4 py-3 text-sm">{sale.sold_on_platform}</td>
-                          <td className="px-4 py-3 text-sm">
+                          <td className="px-4 py-3 text-sm font-light">{sale.sold_on_platform}</td>
+                          <td className="px-4 py-3 text-sm font-light">
                             {new Date(sale.sale_date).toLocaleDateString()}
                           </td>
                           <td className="px-4 py-3 text-sm">
@@ -758,6 +806,99 @@ export default function Admin() {
                             ) : (
                               <span className="text-red-600 font-bold">NO</span>
                             )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'holds' && (
+          <div>
+            <h2 className="text-2xl font-bold tracking-wider mb-6">ITEMS ON HOLD</h2>
+
+            {holds.length === 0 ? (
+              <div className="text-center py-12 text-gray-600 font-light lowercase">no items on hold.</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                        SKU
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                        TITLE
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                        CUSTOMER
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                        HOLD DATE
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                        DAYS LEFT
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                        ACTIONS
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {holds.map((hold) => {
+                      const product = products.find((p) => p.id === hold.product_id);
+                      const daysLeft = calculateDaysUntilExpiration(hold.hold_until);
+                      return (
+                        <tr key={hold.id} className="border-b border-gray-200 hover:bg-gray-50">
+                          <td className="px-4 py-3 text-sm font-light">{product?.sku}</td>
+                          <td className="px-4 py-3 text-sm">
+                            <p className="font-bold">{product?.title || 'Unknown'}</p>
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            <div>
+                              <p className="font-bold">{hold.customer_name}</p>
+                              <p className="text-xs text-gray-600 font-light">{hold.customer_email}</p>
+                              <p className="text-xs text-gray-600 font-light">{hold.customer_phone}</p>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-sm font-light">
+                            {new Date(hold.hold_date).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            <span
+                              className={`px-2 py-1 text-xs font-bold ${
+                                daysLeft <= 7
+                                  ? 'bg-red-100 text-red-800'
+                                  : daysLeft <= 14
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-green-100 text-green-800'
+                              }`}
+                            >
+                              {daysLeft} DAYS
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => handleExtendHold(hold.id)}
+                                className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white hover:bg-blue-700 transition text-xs font-bold tracking-wider"
+                                title="Extend hold for 30 days"
+                              >
+                                <Clock className="w-4 h-4" />
+                                EXTEND
+                              </button>
+                              <a
+                                href={`mailto:${hold.customer_email}?subject=Regarding Your Hold on ${product?.title || 'Item'} (${product?.sku})&body=Hi ${hold.customer_name},%0D%0A%0D%0AThis is regarding your hold on ${product?.title || 'the item'} (SKU: ${product?.sku}).%0D%0A%0D%0ABest regards,%0D%0AWarehouse 414`}
+                                className="p-2 hover:bg-gray-200 rounded transition"
+                                title="Email customer"
+                              >
+                                <Mail className="w-4 h-4" />
+                              </a>
+                            </div>
                           </td>
                         </tr>
                       );
