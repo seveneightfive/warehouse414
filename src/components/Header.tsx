@@ -19,12 +19,12 @@ export default function Header({ onSearch }: HeaderProps) {
       {/* Top Row - Black Stripe */}
       <div className="bg-black h-12 flex items-center">
         <div className="container mx-auto px-4">
-          <a href="/" className="block h-10 w-32 overflow-hidden">
+          <a href="/" className="block relative h-10 w-40 overflow-hidden">
             <img
               src="/warehouse414-logo-260.jpg"
               alt="Warehouse"
-              className="w-full object-cover object-top"
-              style={{ height: '80px', marginTop: '0' }}
+              className="absolute top-0 left-0 w-full"
+              style={{ clipPath: 'inset(0 0 50% 0)' }}
             />
           </a>
         </div>
@@ -36,26 +36,26 @@ export default function Header({ onSearch }: HeaderProps) {
           <div className="flex items-center justify-between h-full">
             {/* Left: 414 Brand + Navigation */}
             <div className="flex items-center gap-8">
-              <a href="/" className="block h-16 w-32 overflow-hidden">
+              <a href="/" className="block relative h-16 w-40 overflow-hidden">
                 <img
                   src="/warehouse414-logo-260.jpg"
                   alt="414"
-                  className="w-full object-cover object-bottom"
-                  style={{ height: '160px', marginTop: '-80px' }}
+                  className="absolute w-full"
+                  style={{ clipPath: 'inset(50% 0 0 0)', top: '-100%' }}
                 />
               </a>
 
               <nav className="hidden md:flex items-center gap-6">
-                <a href="/" className="text-xl font-['Teko'] tracking-wide hover:text-gray-600 transition">
+                <a href="/" className="text-xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition">
                   HOME
                 </a>
-                <a href="/shop" className="text-xl font-['Teko'] tracking-wide hover:text-gray-600 transition">
+                <a href="/shop" className="text-xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition">
                   SHOP
                 </a>
-                <a href="/about" className="text-xl font-['Teko'] tracking-wide hover:text-gray-600 transition">
+                <a href="/about" className="text-xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition">
                   ABOUT
                 </a>
-                <a href="/admin" className="text-xl font-['Teko'] tracking-wide hover:text-gray-600 transition">
+                <a href="/admin" className="text-xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition">
                   ADMIN
                 </a>
               </nav>
@@ -92,12 +92,12 @@ export default function Header({ onSearch }: HeaderProps) {
           <div className="flex flex-col h-full">
             {/* Mobile Menu Header */}
             <div className="bg-black h-12 flex items-center justify-between px-4">
-              <div className="block h-10 w-32 overflow-hidden">
+              <div className="block relative h-10 w-40 overflow-hidden">
                 <img
                   src="/warehouse414-logo-260.jpg"
                   alt="Warehouse"
-                  className="w-full object-cover object-top"
-                  style={{ height: '80px', marginTop: '0' }}
+                  className="absolute top-0 left-0 w-full"
+                  style={{ clipPath: 'inset(0 0 50% 0)' }}
                 />
               </div>
               <button onClick={() => setIsMenuOpen(false)} className="text-white p-2">
@@ -111,28 +111,28 @@ export default function Header({ onSearch }: HeaderProps) {
                 <a
                   href="/"
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-4xl font-['Teko'] tracking-wide hover:text-gray-600 transition"
+                  className="text-4xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition"
                 >
                   HOME
                 </a>
                 <a
                   href="/shop"
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-4xl font-['Teko'] tracking-wide hover:text-gray-600 transition"
+                  className="text-4xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition"
                 >
                   SHOP
                 </a>
                 <a
                   href="/about"
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-4xl font-['Teko'] tracking-wide hover:text-gray-600 transition"
+                  className="text-4xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition"
                 >
                   ABOUT
                 </a>
                 <a
                   href="/admin"
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-4xl font-['Teko'] tracking-wide hover:text-gray-600 transition"
+                  className="text-4xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition"
                 >
                   ADMIN
                 </a>
@@ -149,7 +149,7 @@ export default function Header({ onSearch }: HeaderProps) {
                 />
                 <button
                   type="submit"
-                  className="w-full px-6 py-3 bg-black text-white hover:bg-gray-800 transition text-lg font-['Teko'] tracking-wide"
+                  className="w-full px-6 py-3 bg-black text-white hover:bg-gray-800 transition text-lg font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide"
                 >
                   SEARCH
                 </button>
