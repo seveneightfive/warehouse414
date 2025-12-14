@@ -19,8 +19,13 @@ export default function Header({ onSearch }: HeaderProps) {
       {/* Top Row - Black Stripe */}
       <div className="bg-black h-12 flex items-center">
         <div className="container mx-auto px-4">
-          <a href="/" className="text-white text-2xl font-['Teko'] tracking-wide">
-            WAREHOUSE
+          <a href="/" className="block h-10 w-32 overflow-hidden">
+            <img
+              src="/warehouse414-logo-260.jpg"
+              alt="Warehouse"
+              className="w-full object-cover object-top"
+              style={{ height: '80px', marginTop: '0' }}
+            />
           </a>
         </div>
       </div>
@@ -31,8 +36,13 @@ export default function Header({ onSearch }: HeaderProps) {
           <div className="flex items-center justify-between h-full">
             {/* Left: 414 Brand + Navigation */}
             <div className="flex items-center gap-8">
-              <a href="/" className="text-black text-5xl font-['Teko'] font-medium leading-none">
-                414
+              <a href="/" className="block h-16 w-32 overflow-hidden">
+                <img
+                  src="/warehouse414-logo-260.jpg"
+                  alt="414"
+                  className="w-full object-cover object-bottom"
+                  style={{ height: '160px', marginTop: '-80px' }}
+                />
               </a>
 
               <nav className="hidden md:flex items-center gap-6">
@@ -82,9 +92,14 @@ export default function Header({ onSearch }: HeaderProps) {
           <div className="flex flex-col h-full">
             {/* Mobile Menu Header */}
             <div className="bg-black h-12 flex items-center justify-between px-4">
-              <span className="text-white text-2xl font-['Teko'] tracking-wide">
-                WAREHOUSE
-              </span>
+              <div className="block h-10 w-32 overflow-hidden">
+                <img
+                  src="/warehouse414-logo-260.jpg"
+                  alt="Warehouse"
+                  className="w-full object-cover object-top"
+                  style={{ height: '80px', marginTop: '0' }}
+                />
+              </div>
               <button onClick={() => setIsMenuOpen(false)} className="text-white p-2">
                 <X className="w-6 h-6" />
               </button>
