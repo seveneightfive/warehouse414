@@ -327,48 +327,48 @@ export default function Admin() {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-12">
-        <h1 className="text-4xl font-bold tracking-wider mb-8">ADMIN DASHBOARD</h1>
+        <h1 className="text-4xl font-normal tracking-[0.08em] mb-8">ADMIN DASHBOARD</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
           <div className="bg-white p-6 border-2 border-gray-300">
             <div className="flex items-center justify-between mb-2">
               <Package className="w-8 h-8 text-gray-600" />
-              <span className="text-3xl font-bold">{stats.totalProducts}</span>
+              <span className="text-3xl font-medium">{stats.totalProducts}</span>
             </div>
-            <p className="text-sm tracking-wider text-gray-600">TOTAL PRODUCTS</p>
+            <p className="text-sm tracking-[0.06em] text-gray-600">TOTAL PRODUCTS</p>
           </div>
 
           <div className="bg-white p-6 border-2 border-green-500">
             <div className="flex items-center justify-between mb-2">
               <CheckCircle className="w-8 h-8 text-green-600" />
-              <span className="text-3xl font-bold">{stats.availableProducts}</span>
+              <span className="text-3xl font-medium">{stats.availableProducts}</span>
             </div>
-            <p className="text-sm tracking-wider text-gray-600">AVAILABLE</p>
+            <p className="text-sm tracking-[0.06em] text-gray-600">AVAILABLE</p>
           </div>
 
           <div className="bg-white p-6 border-2 border-gray-500">
             <div className="flex items-center justify-between mb-2">
               <DollarSign className="w-8 h-8 text-gray-600" />
-              <span className="text-3xl font-bold">{stats.soldProducts}</span>
+              <span className="text-3xl font-medium">{stats.soldProducts}</span>
             </div>
-            <p className="text-sm tracking-wider text-gray-600">SOLD</p>
+            <p className="text-sm tracking-[0.06em] text-gray-600">SOLD</p>
           </div>
 
           <div className="bg-white p-6 border-2 border-yellow-500">
             <div className="flex items-center justify-between mb-2">
               <ClipboardList className="w-8 h-8 text-yellow-600" />
-              <span className="text-3xl font-bold">{stats.pendingOffers}</span>
+              <span className="text-3xl font-medium">{stats.pendingOffers}</span>
             </div>
-            <p className="text-sm tracking-wider text-gray-600">PENDING OFFERS</p>
+            <p className="text-sm tracking-[0.06em] text-gray-600">PENDING OFFERS</p>
           </div>
         </div>
 
         <div className="flex gap-4 mb-8 border-b-2 border-gray-200 overflow-x-auto">
           <button
             onClick={() => setActiveTab('products')}
-            className={`px-6 py-3 font-bold tracking-wider whitespace-nowrap ${
+            className={`px-6 py-3 tracking-[0.06em] whitespace-nowrap ${
               activeTab === 'products'
-                ? 'border-b-4 border-black'
+                ? 'border-b-4 border-black text-black'
                 : 'text-gray-500 hover:text-black'
             }`}
           >
@@ -376,9 +376,9 @@ export default function Admin() {
           </button>
           <button
             onClick={() => setActiveTab('consignors')}
-            className={`px-6 py-3 font-bold tracking-wider whitespace-nowrap ${
+            className={`px-6 py-3 tracking-[0.06em] whitespace-nowrap ${
               activeTab === 'consignors'
-                ? 'border-b-4 border-black'
+                ? 'border-b-4 border-black text-black'
                 : 'text-gray-500 hover:text-black'
             }`}
           >
@@ -386,9 +386,9 @@ export default function Admin() {
           </button>
           <button
             onClick={() => setActiveTab('tasks')}
-            className={`px-6 py-3 font-bold tracking-wider whitespace-nowrap ${
+            className={`px-6 py-3 tracking-[0.06em] whitespace-nowrap ${
               activeTab === 'tasks'
-                ? 'border-b-4 border-black'
+                ? 'border-b-4 border-black text-black'
                 : 'text-gray-500 hover:text-black'
             }`}
           >
@@ -396,9 +396,9 @@ export default function Admin() {
           </button>
           <button
             onClick={() => setActiveTab('offers')}
-            className={`px-6 py-3 font-bold tracking-wider whitespace-nowrap ${
+            className={`px-6 py-3 tracking-[0.06em] whitespace-nowrap ${
               activeTab === 'offers'
-                ? 'border-b-4 border-black'
+                ? 'border-b-4 border-black text-black'
                 : 'text-gray-500 hover:text-black'
             }`}
           >
@@ -406,9 +406,9 @@ export default function Admin() {
           </button>
           <button
             onClick={() => setActiveTab('sales')}
-            className={`px-6 py-3 font-bold tracking-wider whitespace-nowrap ${
+            className={`px-6 py-3 tracking-[0.06em] whitespace-nowrap ${
               activeTab === 'sales'
-                ? 'border-b-4 border-black'
+                ? 'border-b-4 border-black text-black'
                 : 'text-gray-500 hover:text-black'
             }`}
           >
@@ -416,9 +416,9 @@ export default function Admin() {
           </button>
           <button
             onClick={() => setActiveTab('holds')}
-            className={`px-6 py-3 font-bold tracking-wider whitespace-nowrap ${
+            className={`px-6 py-3 tracking-[0.06em] whitespace-nowrap ${
               activeTab === 'holds'
-                ? 'border-b-4 border-black'
+                ? 'border-b-4 border-black text-black'
                 : 'text-gray-500 hover:text-black'
             }`}
           >
@@ -426,9 +426,9 @@ export default function Admin() {
           </button>
           <button
             onClick={() => setActiveTab('reports')}
-            className={`px-6 py-3 font-bold tracking-wider whitespace-nowrap ${
+            className={`px-6 py-3 tracking-[0.06em] whitespace-nowrap ${
               activeTab === 'reports'
-                ? 'border-b-4 border-black'
+                ? 'border-b-4 border-black text-black'
                 : 'text-gray-500 hover:text-black'
             }`}
           >
@@ -439,13 +439,13 @@ export default function Admin() {
         {activeTab === 'products' && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold tracking-wider">INVENTORY MANAGEMENT</h2>
+              <h2 className="text-2xl font-normal tracking-[0.08em]">INVENTORY MANAGEMENT</h2>
               <button
                 onClick={() => {
                   resetForm();
                   setShowAddProduct(true);
                 }}
-                className="flex items-center gap-2 px-6 py-3 bg-black text-white hover:bg-gray-800 transition"
+                className="flex items-center gap-2 px-6 py-3 bg-black text-white hover:bg-gray-800 transition tracking-[0.06em]"
               >
                 <Plus className="w-5 h-5" />
                 ADD PRODUCT
@@ -454,7 +454,7 @@ export default function Admin() {
 
             {showAddProduct && (
               <div className="mb-8 p-6 bg-gray-50 border-2 border-gray-300">
-                <h3 className="text-xl font-bold tracking-wider mb-6">
+                <h3 className="text-xl font-normal tracking-[0.08em] mb-6">
                   {editingProduct ? 'EDIT PRODUCT' : 'NEW PRODUCT'}
                 </h3>
                 <form onSubmit={handleSaveProduct} className="space-y-4">
@@ -603,7 +603,7 @@ export default function Admin() {
                     <div className="p-4 bg-blue-50 border border-blue-200">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-bold mb-1">Auto-Generate SKU</p>
+                          <p className="text-sm font-medium mb-1">Auto-Generate SKU</p>
                           <p className="text-xs text-gray-600">
                             Click to generate a unique SKU for this product
                           </p>
@@ -619,7 +619,7 @@ export default function Admin() {
                               setProductForm({ ...productForm, sku });
                             }
                           }}
-                          className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 transition font-bold tracking-wider"
+                          className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 transition tracking-[0.06em]"
                         >
                           GENERATE SKU
                         </button>
@@ -693,7 +693,7 @@ export default function Admin() {
                           }
                           className="w-5 h-5"
                         />
-                        <span className="text-sm font-bold tracking-wider">ON SALE</span>
+                        <span className="text-sm font-medium tracking-[0.06em]">ON SALE</span>
                       </label>
 
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -705,7 +705,7 @@ export default function Admin() {
                           }
                           className="w-5 h-5"
                         />
-                        <span className="text-sm font-bold tracking-wider">FEATURED</span>
+                        <span className="text-sm font-medium tracking-[0.06em]">FEATURED</span>
                       </label>
                     </div>
                   </div>
@@ -713,14 +713,14 @@ export default function Admin() {
                   <div className="flex gap-4">
                     <button
                       type="submit"
-                      className="px-6 py-3 bg-black text-white font-bold tracking-wider hover:bg-gray-800 transition"
+                      className="px-6 py-3 bg-black text-white tracking-[0.06em] hover:bg-gray-800 transition"
                     >
                       {editingProduct ? 'UPDATE PRODUCT' : 'CREATE PRODUCT'}
                     </button>
                     <button
                       type="button"
                       onClick={resetForm}
-                      className="px-6 py-3 border-2 border-gray-300 font-bold tracking-wider hover:border-black transition"
+                      className="px-6 py-3 border-2 border-gray-300 tracking-[0.06em] hover:border-black transition"
                     >
                       CANCEL
                     </button>
@@ -733,14 +733,14 @@ export default function Admin() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-gray-100">
-                    <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">SKU</th>
-                    <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">TITLE</th>
-                    <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">PRICE</th>
-                    <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">STATUS</th>
-                    <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                    <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">SKU</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">TITLE</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PRICE</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">STATUS</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                       WORKFLOW
                     </th>
-                    <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                    <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                       ACTIONS
                     </th>
                   </tr>
@@ -753,7 +753,7 @@ export default function Admin() {
                       <td className="px-4 py-3 text-sm">${product.price.toLocaleString()}</td>
                       <td className="px-4 py-3 text-sm">
                         <span
-                          className={`px-2 py-1 text-xs font-bold ${
+                          className={`px-2 py-1 text-xs font-medium tracking-[0.06em] ${
                             product.status === 'available'
                               ? 'bg-green-100 text-green-800'
                               : product.status === 'on_hold'
@@ -793,7 +793,7 @@ export default function Admin() {
 
         {activeTab === 'offers' && (
           <div>
-            <h2 className="text-2xl font-bold tracking-wider mb-6">PENDING OFFERS</h2>
+            <h2 className="text-2xl font-normal tracking-[0.08em] mb-6">PENDING OFFERS</h2>
 
             {offers.length === 0 ? (
               <div className="text-center py-12 text-gray-600 font-light lowercase">no offers yet.</div>
@@ -826,32 +826,32 @@ export default function Admin() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                           <p className="text-sm">
-                            <span className="font-bold">Customer:</span> <span className="font-light">{offer.customer_name}</span>
+                            <span className="font-medium">Customer:</span> {offer.customer_name}
                           </p>
                           <p className="text-sm">
-                            <span className="font-bold">Email:</span> <span className="font-light">{offer.customer_email}</span>
+                            <span className="font-medium">Email:</span> {offer.customer_email}
                           </p>
                           <p className="text-sm">
-                            <span className="font-bold">Phone:</span> <span className="font-light">{offer.customer_phone}</span>
+                            <span className="font-medium">Phone:</span> {offer.customer_phone}
                           </p>
                         </div>
                         <div>
                           <p className="text-sm">
-                            <span className="font-bold">Offer Amount:</span> <span className="font-light">${offer.offer_amount.toLocaleString()}</span>
+                            <span className="font-medium">Offer Amount:</span> ${offer.offer_amount.toLocaleString()}
                           </p>
                           <p className="text-sm">
-                            <span className="font-bold">Original Price:</span> <span className="font-light">${product?.price.toLocaleString()}</span>
+                            <span className="font-medium">Original Price:</span> ${product?.price.toLocaleString()}
                           </p>
                           <p className="text-sm">
-                            <span className="font-bold">Submitted:</span> <span className="font-light">{new Date(offer.created_at).toLocaleDateString()}</span>
+                            <span className="font-medium">Submitted:</span> {new Date(offer.created_at).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
 
                       {offer.message && (
                         <div className="mb-4">
-                          <p className="text-sm font-bold mb-1">Message:</p>
-                          <p className="text-sm text-gray-700 font-light">{offer.message}</p>
+                          <p className="text-sm font-medium mb-1">Message:</p>
+                          <p className="text-sm text-gray-700">{offer.message}</p>
                         </div>
                       )}
 
@@ -883,7 +883,7 @@ export default function Admin() {
 
         {activeTab === 'sales' && (
           <div>
-            <h2 className="text-2xl font-bold tracking-wider mb-6">SALES TRACKING</h2>
+            <h2 className="text-2xl font-normal tracking-[0.08em] mb-6">SALES TRACKING</h2>
 
             {sales.length === 0 ? (
               <div className="text-center py-12 text-gray-600 font-light lowercase">no sales recorded yet.</div>
@@ -952,7 +952,7 @@ export default function Admin() {
 
         {activeTab === 'holds' && (
           <div>
-            <h2 className="text-2xl font-bold tracking-wider mb-6">ITEMS ON HOLD</h2>
+            <h2 className="text-2xl font-normal tracking-[0.08em] mb-6">ITEMS ON HOLD</h2>
 
             {holds.length === 0 ? (
               <div className="text-center py-12 text-gray-600 font-light lowercase">no items on hold.</div>

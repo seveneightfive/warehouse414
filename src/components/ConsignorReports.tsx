@@ -102,42 +102,42 @@ export default function ConsignorReports() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold tracking-wider">CONSIGNOR REPORTS & ANALYTICS</h2>
+        <h2 className="text-2xl font-normal tracking-[0.08em]">CONSIGNOR REPORTS & ANALYTICS</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div className="bg-white p-6 border-2 border-gray-300">
           <div className="flex items-center justify-between mb-2">
             <Package className="w-8 h-8 text-gray-600" />
-            <span className="text-3xl font-bold">{totalStats.totalProducts}</span>
+            <span className="text-3xl font-medium">{totalStats.totalProducts}</span>
           </div>
-          <p className="text-sm tracking-wider text-gray-600">TOTAL PRODUCTS</p>
+          <p className="text-sm tracking-[0.06em] text-gray-600">TOTAL PRODUCTS</p>
         </div>
 
         <div className="bg-white p-6 border-2 border-green-500">
           <div className="flex items-center justify-between mb-2">
             <TrendingUp className="w-8 h-8 text-green-600" />
-            <span className="text-3xl font-bold">{totalStats.totalSales}</span>
+            <span className="text-3xl font-medium">{totalStats.totalSales}</span>
           </div>
-          <p className="text-sm tracking-wider text-gray-600">TOTAL SALES</p>
+          <p className="text-sm tracking-[0.06em] text-gray-600">TOTAL SALES</p>
         </div>
 
         <div className="bg-white p-6 border-2 border-blue-500">
           <div className="flex items-center justify-between mb-2">
             <DollarSign className="w-8 h-8 text-blue-600" />
-            <span className="text-2xl font-bold">${totalStats.totalRevenue.toLocaleString()}</span>
+            <span className="text-2xl font-medium">${totalStats.totalRevenue.toLocaleString()}</span>
           </div>
-          <p className="text-sm tracking-wider text-gray-600">TOTAL REVENUE</p>
+          <p className="text-sm tracking-[0.06em] text-gray-600">TOTAL REVENUE</p>
         </div>
 
         <div className="bg-white p-6 border-2 border-yellow-500">
           <div className="flex items-center justify-between mb-2">
             <DollarSign className="w-8 h-8 text-yellow-600" />
-            <span className="text-2xl font-bold">
+            <span className="text-2xl font-medium">
               ${totalStats.totalCommissionOwed.toLocaleString()}
             </span>
           </div>
-          <p className="text-sm tracking-wider text-gray-600">COMMISSION OWED</p>
+          <p className="text-sm tracking-[0.06em] text-gray-600">COMMISSION OWED</p>
         </div>
       </div>
 
@@ -160,20 +160,20 @@ export default function ConsignorReports() {
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100">
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">CODE</th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">NAME</th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">CODE</th>
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">NAME</th>
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                 COMMISSION RATE
               </th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                 TOTAL PRODUCTS
               </th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">AVAILABLE</th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">SOLD</th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">AVAILABLE</th>
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">SOLD</th>
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                 TOTAL REVENUE
               </th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                 COMMISSION OWED
               </th>
             </tr>
@@ -181,7 +181,7 @@ export default function ConsignorReports() {
           <tbody>
             {filteredStats.map((stat) => (
               <tr key={stat.consignor.id} className="border-b border-gray-200 hover:bg-gray-50">
-                <td className="px-4 py-3 text-sm font-bold">{stat.consignor.consignor_code}</td>
+                <td className="px-4 py-3 text-sm font-medium">{stat.consignor.consignor_code}</td>
                 <td className="px-4 py-3 text-sm">
                   {stat.consignor.first_name} {stat.consignor.last_name}
                 </td>
@@ -194,12 +194,12 @@ export default function ConsignorReports() {
                 </td>
                 <td className="px-4 py-3 text-sm">{stat.availableProducts}</td>
                 <td className="px-4 py-3 text-sm">{stat.soldProducts}</td>
-                <td className="px-4 py-3 text-sm font-bold">
+                <td className="px-4 py-3 text-sm font-medium">
                   ${stat.totalRevenue.toLocaleString()}
                 </td>
                 <td className="px-4 py-3 text-sm">
                   <span
-                    className={`px-2 py-1 text-xs font-bold ${
+                    className={`px-2 py-1 text-xs font-medium tracking-[0.06em] ${
                       stat.commissionOwed > 0
                         ? 'bg-yellow-100 text-yellow-800'
                         : 'bg-green-100 text-green-800'

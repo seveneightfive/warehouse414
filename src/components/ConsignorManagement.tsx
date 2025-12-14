@@ -163,13 +163,13 @@ export default function ConsignorManagement() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold tracking-wider">CONSIGNOR MANAGEMENT</h2>
+        <h2 className="text-2xl font-normal tracking-[0.08em]">CONSIGNOR MANAGEMENT</h2>
         <button
           onClick={() => {
             resetForm();
             setShowForm(true);
           }}
-          className="flex items-center gap-2 px-6 py-3 bg-black text-white hover:bg-gray-800 transition"
+          className="flex items-center gap-2 px-6 py-3 bg-black text-white hover:bg-gray-800 transition tracking-[0.06em]"
         >
           <Plus className="w-5 h-5" />
           ADD CONSIGNOR
@@ -178,7 +178,7 @@ export default function ConsignorManagement() {
 
       {showForm && (
         <div className="mb-8 p-6 bg-gray-50 border-2 border-gray-300">
-          <h3 className="text-xl font-bold tracking-wider mb-6">
+          <h3 className="text-xl font-normal tracking-[0.08em] mb-6">
             {editingConsignor ? 'EDIT CONSIGNOR' : 'NEW CONSIGNOR'}
           </h3>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -248,7 +248,7 @@ export default function ConsignorManagement() {
                     onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
                     className="w-5 h-5"
                   />
-                  <span className="text-sm font-bold tracking-wider">ACTIVE</span>
+                  <span className="text-sm font-medium tracking-[0.06em]">ACTIVE</span>
                 </label>
               </div>
             </div>
@@ -264,14 +264,14 @@ export default function ConsignorManagement() {
             <div className="flex gap-4">
               <button
                 type="submit"
-                className="px-6 py-3 bg-black text-white font-bold tracking-wider hover:bg-gray-800 transition"
+                className="px-6 py-3 bg-black text-white tracking-[0.06em] hover:bg-gray-800 transition"
               >
                 {editingConsignor ? 'UPDATE CONSIGNOR' : 'CREATE CONSIGNOR'}
               </button>
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-6 py-3 border-2 border-gray-300 font-bold tracking-wider hover:border-black transition"
+                className="px-6 py-3 border-2 border-gray-300 tracking-[0.06em] hover:border-black transition"
               >
                 CANCEL
               </button>
@@ -284,22 +284,22 @@ export default function ConsignorManagement() {
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100">
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">CODE</th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">NAME</th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">EMAIL</th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">PHONE</th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">CODE</th>
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">NAME</th>
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">EMAIL</th>
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PHONE</th>
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                 COMMISSION
               </th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">PRODUCTS</th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">STATUS</th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">ACTIONS</th>
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PRODUCTS</th>
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">STATUS</th>
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">ACTIONS</th>
             </tr>
           </thead>
           <tbody>
             {consignors.map((consignor) => (
               <tr key={consignor.id} className="border-b border-gray-200 hover:bg-gray-50">
-                <td className="px-4 py-3 text-sm font-bold">{consignor.consignor_code}</td>
+                <td className="px-4 py-3 text-sm font-medium">{consignor.consignor_code}</td>
                 <td className="px-4 py-3 text-sm">
                   {consignor.first_name} {consignor.last_name}
                 </td>
@@ -314,7 +314,7 @@ export default function ConsignorManagement() {
                 </td>
                 <td className="px-4 py-3 text-sm">
                   <span
-                    className={`px-2 py-1 text-xs font-bold ${
+                    className={`px-2 py-1 text-xs font-medium tracking-[0.06em] ${
                       consignor.is_active
                         ? 'bg-green-100 text-green-800'
                         : 'bg-gray-100 text-gray-800'

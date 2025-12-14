@@ -139,10 +139,10 @@ export default function WorkflowTaskManagement() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold tracking-wider">WORKFLOW TASK MANAGEMENT</h2>
+        <h2 className="text-2xl font-normal tracking-[0.08em]">WORKFLOW TASK MANAGEMENT</h2>
         <button
           onClick={handleExportPDF}
-          className="flex items-center gap-2 px-6 py-3 bg-black text-white hover:bg-gray-800 transition"
+          className="flex items-center gap-2 px-6 py-3 bg-black text-white hover:bg-gray-800 transition tracking-[0.06em]"
         >
           <FileText className="w-5 h-5" />
           EXPORT TASK LIST (PDF)
@@ -159,8 +159,8 @@ export default function WorkflowTaskManagement() {
             onClick={() => setSelectedStage(stage.key)}
           >
             <div className="text-center">
-              <div className="text-3xl font-bold mb-2">{getStageCount(stage.key)}</div>
-              <div className="text-sm font-bold tracking-wider">{stage.label.toUpperCase()}</div>
+              <div className="text-3xl font-medium mb-2">{getStageCount(stage.key)}</div>
+              <div className="text-sm tracking-[0.06em]">{stage.label.toUpperCase()}</div>
             </div>
           </div>
         ))}
@@ -198,17 +198,17 @@ export default function WorkflowTaskManagement() {
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100">
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">SKU</th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">TITLE</th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">CONSIGNOR</th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">CATEGORY</th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">SKU</th>
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">TITLE</th>
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">CONSIGNOR</th>
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">CATEGORY</th>
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                 CURRENT STAGE
               </th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                 DAYS IN STAGE
               </th>
-              <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                 MOVE TO STAGE
               </th>
             </tr>
@@ -218,7 +218,7 @@ export default function WorkflowTaskManagement() {
               const currentStage = stages.find((s) => s.key === product.workflow_stage);
               return (
                 <tr key={product.id} className="border-b border-gray-200 hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm font-bold">{product.sku}</td>
+                  <td className="px-4 py-3 text-sm font-medium">{product.sku}</td>
                   <td className="px-4 py-3 text-sm">{product.title}</td>
                   <td className="px-4 py-3 text-sm">
                     {product.consignor_details
@@ -227,13 +227,13 @@ export default function WorkflowTaskManagement() {
                   </td>
                   <td className="px-4 py-3 text-sm">{product.category?.name || '-'}</td>
                   <td className="px-4 py-3 text-sm">
-                    <span className={`px-2 py-1 text-xs font-bold ${currentStage?.color}`}>
+                    <span className={`px-2 py-1 text-xs font-medium tracking-[0.06em] ${currentStage?.color}`}>
                       {currentStage?.label.toUpperCase()}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <span
-                      className={`px-2 py-1 text-xs font-bold ${
+                      className={`px-2 py-1 text-xs font-medium tracking-[0.06em] ${
                         (product.days_in_stage || 0) > 14
                           ? 'bg-red-100 text-red-800'
                           : (product.days_in_stage || 0) > 7
