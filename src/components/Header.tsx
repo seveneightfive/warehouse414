@@ -15,82 +15,134 @@ export default function Header({ onSearch }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white shadow-sm">
-      <div className="bg-black text-white py-4">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-sm font-['Kabel'] tracking-wide">
-            unique, one-of-a-kind high style furnishings
-          </p>
+    <header className="sticky top-0 z-50 shadow-md">
+      {/* Top Row - Black Stripe */}
+      <div className="bg-black h-12 flex items-center">
+        <div className="container mx-auto px-4">
+          <a href="/" className="text-white text-2xl font-['Teko'] tracking-wide">
+            WAREHOUSE
+          </a>
         </div>
       </div>
 
-      <div className="relative bg-white">
-        <div className="absolute left-1/2 -translate-x-1/2 -top-10 z-20">
-          <a href="/">
-            <img
-              src="/warehouse414-logo-260.jpg"
-              alt="Warehouse 414"
-              className="h-24 w-auto"
-            />
-          </a>
-        </div>
+      {/* Bottom Row - White Stripe */}
+      <div className="bg-white h-18">
+        <div className="container mx-auto px-4 h-full">
+          <div className="flex items-center justify-between h-full">
+            {/* Left: 414 Brand + Navigation */}
+            <div className="flex items-center gap-8">
+              <a href="/" className="text-black text-5xl font-['Teko'] font-medium leading-none">
+                414
+              </a>
 
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <nav className="hidden md:flex items-center gap-6">
-              <a href="/" className="text-sm tracking-wider hover:text-gray-600 transition font-['Agency_FB']">HOME</a>
-              <a href="/shop" className="text-sm tracking-wider hover:text-gray-600 transition font-['Agency_FB']">SHOP</a>
-              <a href="/about" className="text-sm tracking-wider hover:text-gray-600 transition font-['Agency_FB']">ABOUT</a>
-              <a href="/admin" className="text-sm tracking-wider hover:text-gray-600 transition font-['Agency_FB']">ADMIN</a>
-            </nav>
+              <nav className="hidden md:flex items-center gap-6">
+                <a href="/" className="text-xl font-['Teko'] tracking-wide hover:text-gray-600 transition">
+                  HOME
+                </a>
+                <a href="/shop" className="text-xl font-['Teko'] tracking-wide hover:text-gray-600 transition">
+                  SHOP
+                </a>
+                <a href="/about" className="text-xl font-['Teko'] tracking-wide hover:text-gray-600 transition">
+                  ABOUT
+                </a>
+                <a href="/admin" className="text-xl font-['Teko'] tracking-wide hover:text-gray-600 transition">
+                  ADMIN
+                </a>
+              </nav>
+            </div>
 
-            <div className="flex-1 md:flex-none md:w-40"></div>
-
+            {/* Right: Search Bar */}
             <form onSubmit={handleSearch} className="hidden md:flex items-center gap-2">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search..."
-                className="px-4 py-2 border border-gray-300 focus:outline-none focus:border-black transition font-['Kabel']"
+                className="px-4 py-2 border border-gray-300 focus:outline-none focus:border-black transition w-64"
               />
               <button type="submit" className="p-2 bg-black text-white hover:bg-gray-800 transition">
                 <Search className="w-5 h-5" />
               </button>
             </form>
 
+            {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 ml-auto"
+              className="md:hidden p-2"
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
+        </div>
+      </div>
 
-          {isMenuOpen && (
-            <div className="md:hidden mt-4 pb-4 space-y-4">
-              <nav className="flex flex-col gap-4">
-                <a href="/" className="text-sm tracking-wider hover:text-gray-600 transition font-['Agency_FB']">HOME</a>
-                <a href="/shop" className="text-sm tracking-wider hover:text-gray-600 transition font-['Agency_FB']">SHOP</a>
-                <a href="/about" className="text-sm tracking-wider hover:text-gray-600 transition font-['Agency_FB']">ABOUT</a>
-                <a href="/admin" className="text-sm tracking-wider hover:text-gray-600 transition font-['Agency_FB']">ADMIN</a>
+      {/* Full Screen Mobile Menu */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-50 bg-white md:hidden">
+          <div className="flex flex-col h-full">
+            {/* Mobile Menu Header */}
+            <div className="bg-black h-12 flex items-center justify-between px-4">
+              <span className="text-white text-2xl font-['Teko'] tracking-wide">
+                WAREHOUSE
+              </span>
+              <button onClick={() => setIsMenuOpen(false)} className="text-white p-2">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Mobile Menu Content */}
+            <div className="flex-1 flex flex-col p-8 space-y-8">
+              <nav className="flex flex-col space-y-6">
+                <a
+                  href="/"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-4xl font-['Teko'] tracking-wide hover:text-gray-600 transition"
+                >
+                  HOME
+                </a>
+                <a
+                  href="/shop"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-4xl font-['Teko'] tracking-wide hover:text-gray-600 transition"
+                >
+                  SHOP
+                </a>
+                <a
+                  href="/about"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-4xl font-['Teko'] tracking-wide hover:text-gray-600 transition"
+                >
+                  ABOUT
+                </a>
+                <a
+                  href="/admin"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-4xl font-['Teko'] tracking-wide hover:text-gray-600 transition"
+                >
+                  ADMIN
+                </a>
               </nav>
-              <form onSubmit={handleSearch} className="flex items-center gap-2">
+
+              {/* Mobile Search */}
+              <form onSubmit={handleSearch} className="flex flex-col gap-4 mt-auto">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search..."
-                  className="flex-1 px-4 py-2 border border-gray-300 focus:outline-none focus:border-black transition font-['Kabel']"
+                  className="w-full px-4 py-3 border-2 border-gray-300 focus:outline-none focus:border-black transition text-lg"
                 />
-                <button type="submit" className="p-2 bg-black text-white hover:bg-gray-800 transition">
-                  <Search className="w-5 h-5" />
+                <button
+                  type="submit"
+                  className="w-full px-6 py-3 bg-black text-white hover:bg-gray-800 transition text-lg font-['Teko'] tracking-wide"
+                >
+                  SEARCH
                 </button>
               </form>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </header>
   );
 }
