@@ -3,7 +3,9 @@ import Home from './pages/Home';
 import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
 import Admin from './pages/Admin';
+import Login from './pages/Login';
 import { ShopStateProvider } from './contexts/ShopStateContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -41,6 +43,10 @@ function App() {
       return <ProductDetail productId={productId} />;
     }
 
+    if (currentPath === '/login') {
+      return <Login />;
+    }
+
     if (currentPath === '/admin') {
       return <Admin />;
     }
@@ -58,9 +64,11 @@ function App() {
   };
 
   return (
-    <ShopStateProvider>
-      {routes()}
-    </ShopStateProvider>
+    <AuthProvider>
+      <ShopStateProvider>
+        {routes()}
+      </ShopStateProvider>
+    </AuthProvider>
   );
 }
 

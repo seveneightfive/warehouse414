@@ -13,6 +13,7 @@ import {
   Clock,
   Users,
   ListTodo,
+  LogOut,
 } from 'lucide-react';
 import Layout from '../components/Layout';
 import { supabase } from '../lib/supabase';
@@ -21,8 +22,10 @@ import ConsignorManagement from '../components/ConsignorManagement';
 import WorkflowTaskManagement from '../components/WorkflowTaskManagement';
 import ConsignorReports from '../components/ConsignorReports';
 import { ImageUploadManager, type ImageData } from '../components/ImageUploadManager';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Admin() {
+  const { user, loading: authLoading, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<'products' | 'offers' | 'sales' | 'holds' | 'consignors' | 'tasks' | 'reports'>('products');
   const [products, setProducts] = useState<Product[]>([]);
   const [offers, setOffers] = useState<ProductOffer[]>([]);
@@ -62,10 +65,19 @@ export default function Admin() {
   });
 
   useEffect(() => {
-    fetchAdminData();
-    fetchCategories();
-    fetchConsignors();
-  }, []);
+    if (!authLoading && !user) {
+      window.history.pushState({}, '', '/login');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
+  }, [user, authLoading]);
+
+  useEffect(() => {
+    if (user) {
+      fetchAdminData();
+      fetchCategories();
+      fetchConsignors();
+    }
+  }, [user]);
 
   useEffect(() => {
     if (productForm.category_id) {
@@ -374,7 +386,7 @@ export default function Admin() {
     pendingOffers: offers.filter((o) => o.status === 'pending').length,
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-12 text-center">
@@ -384,10 +396,26 @@ export default function Admin() {
     );
   }
 
+  if (!user) {
+    return null;
+  }
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-12">
-        <h1 className="text-4xl font-normal tracking-[0.08em] mb-8">ADMIN DASHBOARD</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-normal tracking-[0.08em]">ADMIN DASHBOARD</h1>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-600">{user?.email}</span>
+            <button
+              onClick={signOut}
+              className="flex items-center gap-2 px-4 py-2 border-2 border-gray-300 hover:border-black transition tracking-[0.06em]"
+            >
+              <LogOut className="w-4 h-4" />
+              LOGOUT
+            </button>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
           <div className="bg-white p-6 border-2 border-gray-300">
