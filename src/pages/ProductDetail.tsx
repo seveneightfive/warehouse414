@@ -289,10 +289,27 @@ Message: ${similarForm.message}
   const displayPrice =
     product.is_on_sale && product.sale_price ? product.sale_price : product.price;
 
-  const allImages = [
-    ...(product.featured_image_url ? [product.featured_image_url] : []),
-    ...images.map((img) => img.image_url),
-  ];
+  // Combine featured image with product images, ensuring no duplicates
+  const allImages = (() => {
+    const imageUrls = new Set<string>();
+    const imageList: string[] = [];
+
+    // Add featured image first if it exists
+    if (product.featured_image_url) {
+      imageUrls.add(product.featured_image_url);
+      imageList.push(product.featured_image_url);
+    }
+
+    // Add other product images in order, skipping duplicates
+    images.forEach((img) => {
+      if (!imageUrls.has(img.image_url)) {
+        imageUrls.add(img.image_url);
+        imageList.push(img.image_url);
+      }
+    });
+
+    return imageList;
+  })();
 
   return (
     <Layout>

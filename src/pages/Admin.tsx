@@ -16,10 +16,11 @@ import {
 } from 'lucide-react';
 import Layout from '../components/Layout';
 import { supabase } from '../lib/supabase';
-import type { Product, ProductOffer, ProductSale, ProductHold, Category, Subcategory, Consignor } from '../lib/types';
+import type { Product, ProductOffer, ProductSale, ProductHold, Category, Subcategory, Consignor, ProductImage } from '../lib/types';
 import ConsignorManagement from '../components/ConsignorManagement';
 import WorkflowTaskManagement from '../components/WorkflowTaskManagement';
 import ConsignorReports from '../components/ConsignorReports';
+import { ImageUploadManager, type ImageData } from '../components/ImageUploadManager';
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState<'products' | 'offers' | 'sales' | 'holds' | 'consignors' | 'tasks' | 'reports'>('products');
@@ -35,6 +36,8 @@ export default function Admin() {
 
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [productImages, setProductImages] = useState<ImageData[]>([]);
+  const [existingImages, setExistingImages] = useState<ProductImage[]>([]);
 
   const [productForm, setProductForm] = useState({
     sku: '',
@@ -185,6 +188,8 @@ export default function Admin() {
         status: 'available' as const,
       };
 
+      let productId: string;
+
       if (editingProduct) {
         const { error } = await supabase
           .from('products')
@@ -192,12 +197,48 @@ export default function Admin() {
           .eq('id', editingProduct.id);
 
         if (error) throw error;
+        productId = editingProduct.id;
+
+        // Delete existing product images that are not in the new list
+        const existingImageIds = existingImages.map(img => img.id);
+        const newImageIds = productImages.filter(img => img.id).map(img => img.id);
+        const imagesToDelete = existingImageIds.filter(id => !newImageIds.includes(id));
+
+        if (imagesToDelete.length > 0) {
+          await supabase.from('product_images').delete().in('id', imagesToDelete);
+        }
+
         alert('Product updated successfully!');
       } else {
-        const { error } = await supabase.from('products').insert(productData);
+        const { data, error } = await supabase.from('products').insert(productData).select().single();
 
         if (error) throw error;
+        if (!data) throw new Error('Failed to create product');
+
+        productId = data.id;
         alert('Product created successfully!');
+      }
+
+      // Save new product images
+      const newImages = productImages.filter(img => img.isNew);
+      if (newImages.length > 0) {
+        const imageInserts = newImages.map(img => ({
+          product_id: productId,
+          image_url: img.url,
+          display_order: img.displayOrder,
+        }));
+
+        const { error: imagesError } = await supabase.from('product_images').insert(imageInserts);
+        if (imagesError) throw imagesError;
+      }
+
+      // Update display order for existing images
+      const existingToUpdate = productImages.filter(img => img.id && !img.isNew);
+      for (const img of existingToUpdate) {
+        await supabase
+          .from('product_images')
+          .update({ display_order: img.displayOrder })
+          .eq('id', img.id);
       }
 
       resetForm();
@@ -232,9 +273,11 @@ export default function Admin() {
     });
     setEditingProduct(null);
     setShowAddProduct(false);
+    setProductImages([]);
+    setExistingImages([]);
   };
 
-  const handleEditProduct = (product: Product) => {
+  const handleEditProduct = async (product: Product) => {
     setEditingProduct(product);
     setProductForm({
       sku: product.sku,
@@ -257,6 +300,22 @@ export default function Admin() {
       category_id: product.category_id || '',
       subcategory_id: product.subcategory_id || '',
     });
+
+    // Load existing images
+    try {
+      const { data: images } = await supabase
+        .from('product_images')
+        .select('*')
+        .eq('product_id', product.id)
+        .order('display_order', { ascending: true });
+
+      if (images) {
+        setExistingImages(images);
+      }
+    } catch (error) {
+      console.error('Error loading product images:', error);
+    }
+
     setShowAddProduct(true);
   };
 
@@ -573,16 +632,23 @@ export default function Admin() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input
-                      type="text"
-                      placeholder="Featured Image URL"
-                      value={productForm.featured_image_url}
-                      onChange={(e) =>
-                        setProductForm({ ...productForm, featured_image_url: e.target.value })
-                      }
-                      className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium mb-2 tracking-[0.06em]">
+                      PRODUCT IMAGES
+                    </label>
+                    <ImageUploadManager
+                      productSku={productForm.sku || 'temp-sku'}
+                      productId={editingProduct?.id}
+                      featuredImageUrl={productForm.featured_image_url}
+                      existingImages={existingImages}
+                      onImagesChange={(images, featuredUrl) => {
+                        setProductImages(images);
+                        setProductForm({ ...productForm, featured_image_url: featuredUrl || '' });
+                      }}
                     />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <select
                       value={productForm.consignor_id}
                       onChange={(e) =>
