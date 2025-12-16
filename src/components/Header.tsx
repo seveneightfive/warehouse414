@@ -17,52 +17,49 @@ export default function Header({ onSearch }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 shadow-md">
       {/* Top Row - Black Stripe */}
-      <div className="bg-black h-12 flex items-center">
-        <div className="container mx-auto px-4">
-          <a href="/" className="block relative h-10 w-40 overflow-hidden">
-            <img
-              src="/warehouse414-logo-260.jpg"
-              alt="Warehouse"
-              className="absolute top-0 left-0 w-full"
-              style={{ clipPath: 'inset(0 0 50% 0)' }}
-            />
-          </a>
-        </div>
+      <div className="bg-black h-12 flex items-center justify-center">
+        <a href="/" className="block relative h-10 w-40 overflow-hidden">
+          <img
+            src="/warehouse414-logo-260.jpg"
+            alt="Warehouse"
+            className="absolute top-0 left-0 w-full"
+            style={{ clipPath: 'inset(0 0 50% 0)' }}
+          />
+        </a>
       </div>
 
       {/* Bottom Row - White Stripe */}
       <div className="bg-white h-18">
         <div className="container mx-auto px-4 h-full">
-          <div className="flex items-center justify-between h-full">
-            {/* Left: 414 Brand + Navigation */}
-            <div className="flex items-center gap-8">
-              <a href="/" className="block relative h-16 w-40 overflow-hidden">
-                <img
-                  src="/warehouse414-logo-260.jpg"
-                  alt="414"
-                  className="absolute w-full"
-                  style={{ clipPath: 'inset(50% 0 0 0)', top: '-100%' }}
-                />
+          <div className="flex items-center justify-center h-full relative">
+            {/* Navigation - Left */}
+            <nav className="hidden md:flex items-center gap-6 absolute left-4">
+              <a href="/" className="text-xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition">
+                HOME
               </a>
+              <a href="/shop" className="text-xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition">
+                SHOP
+              </a>
+              <a href="/about" className="text-xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition">
+                ABOUT
+              </a>
+              <a href="/admin" className="text-xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition">
+                ADMIN
+              </a>
+            </nav>
 
-              <nav className="hidden md:flex items-center gap-6">
-                <a href="/" className="text-xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition">
-                  HOME
-                </a>
-                <a href="/shop" className="text-xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition">
-                  SHOP
-                </a>
-                <a href="/about" className="text-xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition">
-                  ABOUT
-                </a>
-                <a href="/admin" className="text-xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition">
-                  ADMIN
-                </a>
-              </nav>
-            </div>
+            {/* Center: 414 Logo */}
+            <a href="/" className="block relative h-16 w-40 overflow-hidden">
+              <img
+                src="/warehouse414-logo-260.jpg"
+                alt="414"
+                className="absolute w-full"
+                style={{ clipPath: 'inset(50% 0 0 0)', top: '-100%' }}
+              />
+            </a>
 
             {/* Right: Search Bar */}
-            <form onSubmit={handleSearch} className="hidden md:flex items-center gap-2">
+            <form onSubmit={handleSearch} className="hidden md:flex items-center gap-2 absolute right-4">
               <input
                 type="text"
                 value={searchQuery}
@@ -78,7 +75,7 @@ export default function Header({ onSearch }: HeaderProps) {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2"
+              className="md:hidden p-2 absolute right-4"
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -91,7 +88,7 @@ export default function Header({ onSearch }: HeaderProps) {
         <div className="fixed inset-0 z-50 bg-white md:hidden">
           <div className="flex flex-col h-full">
             {/* Mobile Menu Header */}
-            <div className="bg-black h-12 flex items-center justify-between px-4">
+            <div className="bg-black h-12 flex items-center justify-center px-4 relative">
               <div className="block relative h-10 w-40 overflow-hidden">
                 <img
                   src="/warehouse414-logo-260.jpg"
@@ -100,7 +97,7 @@ export default function Header({ onSearch }: HeaderProps) {
                   style={{ clipPath: 'inset(0 0 50% 0)' }}
                 />
               </div>
-              <button onClick={() => setIsMenuOpen(false)} className="text-white p-2">
+              <button onClick={() => setIsMenuOpen(false)} className="text-white p-2 absolute right-4">
                 <X className="w-6 h-6" />
               </button>
             </div>
