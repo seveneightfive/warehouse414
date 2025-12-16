@@ -17,18 +17,18 @@ export default function Header({ onSearch }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 shadow-md">
       {/* Top Row - Black Stripe */}
-      <div className="bg-black h-16 flex items-center justify-center">
-        <a href="/" className="block relative h-16 w-52 overflow-visible">
+      <div className="bg-black h-12 flex items-center justify-center">
+        <div className="relative h-12 w-48 overflow-hidden">
           <img
             src="/warehouse414-logo-260.jpg"
             alt="Warehouse"
             className="absolute left-0 w-full h-auto"
             style={{
-              clipPath: 'inset(0 0 52% 0)',
+              clipPath: 'inset(0 0 50% 0)',
               top: '0'
             }}
           />
-        </a>
+        </div>
       </div>
 
       {/* Bottom Row - White Stripe */}
@@ -52,17 +52,17 @@ export default function Header({ onSearch }: HeaderProps) {
             </nav>
 
             {/* Center: 414 Logo */}
-            <a href="/" className="block relative h-20 w-52 overflow-visible">
+            <div className="relative h-12 w-48 overflow-hidden">
               <img
                 src="/warehouse414-logo-260.jpg"
                 alt="414"
-                className="absolute w-full h-auto"
+                className="absolute left-0 w-full h-auto"
                 style={{
-                  clipPath: 'inset(48% 0 0 0)',
-                  top: '-48%'
+                  clipPath: 'inset(50% 0 0 0)',
+                  top: '-100%'
                 }}
               />
-            </a>
+            </div>
 
             {/* Right: Search Bar */}
             <form onSubmit={handleSearch} className="hidden md:flex items-center gap-2 absolute right-4">
@@ -94,14 +94,14 @@ export default function Header({ onSearch }: HeaderProps) {
         <div className="fixed inset-0 z-50 bg-white md:hidden">
           <div className="flex flex-col h-full">
             {/* Mobile Menu Header */}
-            <div className="bg-black h-16 flex items-center justify-center px-4 relative">
-              <div className="block relative h-16 w-52 overflow-visible">
+            <div className="bg-black h-12 flex items-center justify-center px-4 relative">
+              <div className="relative h-12 w-48 overflow-hidden">
                 <img
                   src="/warehouse414-logo-260.jpg"
                   alt="Warehouse"
                   className="absolute left-0 w-full h-auto"
                   style={{
-                    clipPath: 'inset(0 0 52% 0)',
+                    clipPath: 'inset(0 0 50% 0)',
                     top: '0'
                   }}
                 />
