@@ -179,7 +179,7 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
           <a
-            href="https://1stdibs.com"
+            href="https://www.1stdibs.com/dealers/warehouse-414/?_ga=2.218083090.542038144.1661879061-207012027.1661280070"
             target="_blank"
             rel="noopener noreferrer"
             className="p-8 border-2 border-gray-300 hover:border-black transition text-center group"
@@ -191,7 +191,7 @@ export default function Home() {
           </a>
 
           <a
-            href="https://charish.com"
+            href="https://www.chairish.com/shop/warehouse414?_ga=2.146694704.542038144.1661879061-207012027.1661280070"
             target="_blank"
             rel="noopener noreferrer"
             className="p-8 border-2 border-gray-300 hover:border-black transition text-center group"
@@ -203,7 +203,7 @@ export default function Home() {
           </a>
 
           <a
-            href="https://ebay.com"
+            href="https://www.ebay.com/str/warehouse414"
             target="_blank"
             rel="noopener noreferrer"
             className="p-8 border-2 border-gray-300 hover:border-black transition text-center group"
