@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Upload, X, Star, Link as LinkIcon, Image as ImageIcon, GripVertical } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { ProductImage } from '../lib/types';
@@ -34,6 +34,19 @@ export function ImageUploadManager({
     return existing;
   });
   const [featured, setFeatured] = useState<string | null>(featuredImageUrl || null);
+
+  useEffect(() => {
+    const existing = existingImages.map((img) => ({
+      id: img.id,
+      url: img.image_url,
+      displayOrder: img.display_order,
+    }));
+    setImages(existing);
+  }, [existingImages]);
+
+  useEffect(() => {
+    setFeatured(featuredImageUrl || null);
+  }, [featuredImageUrl]);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
   const [urlInput, setUrlInput] = useState('');
   const [dragActive, setDragActive] = useState(false);

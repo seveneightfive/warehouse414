@@ -243,9 +243,10 @@ export default function Admin() {
 
       resetForm();
       fetchAdminData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving product:', error);
-      alert('Error saving product. Please try again.');
+      const errorMessage = error?.message || 'Unknown error occurred';
+      alert(`Error saving product: ${errorMessage}`);
     }
   };
 
@@ -637,6 +638,7 @@ export default function Admin() {
                       PRODUCT IMAGES
                     </label>
                     <ImageUploadManager
+                      key={editingProduct?.id || 'new-product'}
                       productSku={productForm.sku || 'temp-sku'}
                       productId={editingProduct?.id}
                       featuredImageUrl={productForm.featured_image_url}
