@@ -170,7 +170,7 @@ export default function WorkflowTaskManagement() {
         <select
           value={selectedStage}
           onChange={(e) => setSelectedStage(e.target.value as WorkflowStage | 'all')}
-          className="px-4 py-2 border border-gray-300 focus:outline-none focus:border-black"
+          className="font-calibri px-4 py-2 border border-gray-300 focus:outline-none focus:border-black"
         >
           <option value="all">All Stages</option>
           {stages.map((stage) => (
@@ -183,7 +183,7 @@ export default function WorkflowTaskManagement() {
         <select
           value={selectedConsignor}
           onChange={(e) => setSelectedConsignor(e.target.value)}
-          className="px-4 py-2 border border-gray-300 focus:outline-none focus:border-black"
+          className="font-calibri px-4 py-2 border border-gray-300 focus:outline-none focus:border-black"
         >
           <option value="all">All Consignors</option>
           {consignors.map((consignor) => (
@@ -198,17 +198,17 @@ export default function WorkflowTaskManagement() {
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100">
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">SKU</th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">TITLE</th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">CONSIGNOR</th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">CATEGORY</th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">SKU</th>
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">TITLE</th>
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">CONSIGNOR</th>
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">CATEGORY</th>
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                 CURRENT STAGE
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                 DAYS IN STAGE
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                 MOVE TO STAGE
               </th>
             </tr>
@@ -218,20 +218,20 @@ export default function WorkflowTaskManagement() {
               const currentStage = stages.find((s) => s.key === product.workflow_stage);
               return (
                 <tr key={product.id} className="border-b border-gray-200 hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm font-medium">{product.sku}</td>
-                  <td className="px-4 py-3 text-sm">{product.title}</td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="font-calibri px-4 py-3 text-sm font-medium">{product.sku}</td>
+                  <td className="font-calibri px-4 py-3 text-sm">{product.title}</td>
+                  <td className="font-calibri px-4 py-3 text-sm">
                     {product.consignor_details
                       ? `${product.consignor_details.consignor_code} - ${product.consignor_details.first_name} ${product.consignor_details.last_name}`
                       : product.consignor || '-'}
                   </td>
-                  <td className="px-4 py-3 text-sm">{product.category?.name || '-'}</td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="font-calibri px-4 py-3 text-sm">{product.category?.name || '-'}</td>
+                  <td className="font-calibri px-4 py-3 text-sm">
                     <span className={`px-2 py-1 text-xs font-medium tracking-[0.06em] ${currentStage?.color}`}>
                       {currentStage?.label.toUpperCase()}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="font-calibri px-4 py-3 text-sm">
                     <span
                       className={`px-2 py-1 text-xs font-medium tracking-[0.06em] ${
                         (product.days_in_stage || 0) > 14
@@ -244,13 +244,13 @@ export default function WorkflowTaskManagement() {
                       {product.days_in_stage} DAYS
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="font-calibri px-4 py-3 text-sm">
                     <select
                       value={product.workflow_stage}
                       onChange={(e) =>
                         handleStageChange(product.id, e.target.value as WorkflowStage)
                       }
-                      className="px-3 py-1 border border-gray-300 focus:outline-none focus:border-black text-xs"
+                      className="font-calibri px-3 py-1 border border-gray-300 focus:outline-none focus:border-black text-xs"
                     >
                       {stages.map((stage) => (
                         <option key={stage.key} value={stage.key}>

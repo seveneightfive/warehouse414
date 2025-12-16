@@ -189,7 +189,7 @@ export default function ConsignorManagement() {
                 placeholder="First Name *"
                 value={form.first_name}
                 onChange={(e) => setForm({ ...form, first_name: e.target.value })}
-                className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                className="font-calibri px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
               />
               <input
                 type="text"
@@ -197,7 +197,7 @@ export default function ConsignorManagement() {
                 placeholder="Last Name *"
                 value={form.last_name}
                 onChange={(e) => setForm({ ...form, last_name: e.target.value })}
-                className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                className="font-calibri px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
               />
             </div>
 
@@ -207,14 +207,14 @@ export default function ConsignorManagement() {
                 placeholder="Email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                className="font-calibri px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
               />
               <input
                 type="tel"
                 placeholder="Phone"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                className="font-calibri px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
               />
             </div>
 
@@ -223,12 +223,12 @@ export default function ConsignorManagement() {
               value={form.address}
               onChange={(e) => setForm({ ...form, address: e.target.value })}
               rows={3}
-              className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+              className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Commission Rate (%)</label>
+                <label className="font-calibri block text-sm font-medium mb-2">Commission Rate (%)</label>
                 <input
                   type="number"
                   required
@@ -237,7 +237,7 @@ export default function ConsignorManagement() {
                   step="0.01"
                   value={form.commission_rate}
                   onChange={(e) => setForm({ ...form, commission_rate: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                  className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                 />
               </div>
               <div className="flex items-end">
@@ -248,7 +248,7 @@ export default function ConsignorManagement() {
                     onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
                     className="w-5 h-5"
                   />
-                  <span className="text-sm font-medium tracking-[0.06em]">ACTIVE</span>
+                  <span className="font-calibri text-sm font-medium tracking-[0.06em]">ACTIVE</span>
                 </label>
               </div>
             </div>
@@ -258,7 +258,7 @@ export default function ConsignorManagement() {
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
               rows={3}
-              className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+              className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
             />
 
             <div className="flex gap-4">
@@ -284,35 +284,35 @@ export default function ConsignorManagement() {
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100">
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">CODE</th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">NAME</th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">EMAIL</th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PHONE</th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">CODE</th>
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">NAME</th>
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">EMAIL</th>
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PHONE</th>
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                 COMMISSION
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PRODUCTS</th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">STATUS</th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">ACTIONS</th>
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PRODUCTS</th>
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">STATUS</th>
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">ACTIONS</th>
             </tr>
           </thead>
           <tbody>
             {consignors.map((consignor) => (
               <tr key={consignor.id} className="border-b border-gray-200 hover:bg-gray-50">
-                <td className="px-4 py-3 text-sm font-medium">{consignor.consignor_code}</td>
-                <td className="px-4 py-3 text-sm">
+                <td className="font-calibri px-4 py-3 text-sm font-medium">{consignor.consignor_code}</td>
+                <td className="font-calibri px-4 py-3 text-sm">
                   {consignor.first_name} {consignor.last_name}
                 </td>
-                <td className="px-4 py-3 text-sm">{consignor.email || '-'}</td>
-                <td className="px-4 py-3 text-sm">{consignor.phone || '-'}</td>
-                <td className="px-4 py-3 text-sm">{consignor.commission_rate}%</td>
-                <td className="px-4 py-3 text-sm">
+                <td className="font-calibri px-4 py-3 text-sm">{consignor.email || '-'}</td>
+                <td className="font-calibri px-4 py-3 text-sm">{consignor.phone || '-'}</td>
+                <td className="font-calibri px-4 py-3 text-sm">{consignor.commission_rate}%</td>
+                <td className="font-calibri px-4 py-3 text-sm">
                   <div className="flex items-center gap-2">
                     <Package className="w-4 h-4" />
                     <span>{productCounts[consignor.id] || 0}</span>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-sm">
+                <td className="font-calibri px-4 py-3 text-sm">
                   <span
                     className={`px-2 py-1 text-xs font-medium tracking-[0.06em] ${
                       consignor.is_active
@@ -323,7 +323,7 @@ export default function ConsignorManagement() {
                     {consignor.is_active ? 'ACTIVE' : 'INACTIVE'}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-sm">
+                <td className="font-calibri px-4 py-3 text-sm">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleEdit(consignor)}

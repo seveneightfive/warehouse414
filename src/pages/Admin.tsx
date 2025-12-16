@@ -553,7 +553,7 @@ export default function Admin() {
                       placeholder="SKU *"
                       value={productForm.sku}
                       onChange={(e) => setProductForm({ ...productForm, sku: e.target.value })}
-                      className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                      className="font-calibri px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                     />
                     <input
                       type="text"
@@ -561,7 +561,7 @@ export default function Admin() {
                       placeholder="Title *"
                       value={productForm.title}
                       onChange={(e) => setProductForm({ ...productForm, title: e.target.value })}
-                      className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                      className="font-calibri px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                     />
                   </div>
 
@@ -572,7 +572,7 @@ export default function Admin() {
                     onChange={(e) =>
                       setProductForm({ ...productForm, short_description: e.target.value })
                     }
-                    className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                    className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                   />
 
                   <textarea
@@ -582,7 +582,7 @@ export default function Admin() {
                       setProductForm({ ...productForm, full_description: e.target.value })
                     }
                     rows={4}
-                    className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                    className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                   />
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -593,14 +593,14 @@ export default function Admin() {
                       onChange={(e) =>
                         setProductForm({ ...productForm, designer: e.target.value })
                       }
-                      className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                      className="font-calibri px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                     />
                     <input
                       type="text"
                       placeholder="Maker"
                       value={productForm.maker}
                       onChange={(e) => setProductForm({ ...productForm, maker: e.target.value })}
-                      className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                      className="font-calibri px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                     />
                     <input
                       type="text"
@@ -609,12 +609,12 @@ export default function Admin() {
                       onChange={(e) =>
                         setProductForm({ ...productForm, material: e.target.value })
                       }
-                      className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                      className="font-calibri px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Dimensions</label>
+                    <label className="font-calibri block text-sm font-medium mb-2">Dimensions</label>
                     <textarea
                       placeholder="Enter detailed dimensions (e.g., Height: 42 Inches, Width: 25 Inches, etc.)"
                       value={productForm.dimensions}
@@ -622,12 +622,12 @@ export default function Admin() {
                         setProductForm({ ...productForm, dimensions: e.target.value })
                       }
                       rows={6}
-                      className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                      className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Crate / Box Size</label>
+                    <label className="font-calibri block text-sm font-medium mb-2">Crate / Box Size</label>
                     <textarea
                       placeholder="Crated Size:&#10;- Length: &#10;- Width: &#10;- Height: &#10;- Weight: "
                       value={productForm.crate_size}
@@ -635,7 +635,7 @@ export default function Admin() {
                         setProductForm({ ...productForm, crate_size: e.target.value })
                       }
                       rows={5}
-                      className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                      className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                     />
                   </div>
 
@@ -647,7 +647,7 @@ export default function Admin() {
                       placeholder="Price *"
                       value={productForm.price}
                       onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
-                      className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                      className="font-calibri px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                     />
                     <input
                       type="number"
@@ -657,7 +657,7 @@ export default function Admin() {
                       onChange={(e) =>
                         setProductForm({ ...productForm, sale_price: e.target.value })
                       }
-                      className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                      className="font-calibri px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                     />
                   </div>
 
@@ -684,7 +684,7 @@ export default function Admin() {
                       onChange={(e) =>
                         setProductForm({ ...productForm, consignor_id: e.target.value })
                       }
-                      className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                      className="font-calibri px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                     >
                       <option value="">Select Consignor</option>
                       {consignors.map((consignor) => (
@@ -732,7 +732,7 @@ export default function Admin() {
                           workflow_stage: e.target.value as any,
                         })
                       }
-                      className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                      className="font-calibri px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                     >
                       <option value="research">Research</option>
                       <option value="descriptions">Descriptions</option>
@@ -750,7 +750,7 @@ export default function Admin() {
                           subcategory_id: '',
                         });
                       }}
-                      className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                      className="font-calibri px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                     >
                       <option value="">Select Category</option>
                       {categories.map((category) => (
@@ -766,7 +766,7 @@ export default function Admin() {
                         setProductForm({ ...productForm, subcategory_id: e.target.value })
                       }
                       disabled={!productForm.category_id}
-                      className="px-4 py-3 border border-gray-300 focus:outline-none focus:border-black disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="font-calibri px-4 py-3 border border-gray-300 focus:outline-none focus:border-black disabled:bg-gray-100 disabled:cursor-not-allowed"
                     >
                       <option value="">Select Subcategory</option>
                       {filteredSubcategories.map((subcategory) => (
@@ -789,7 +789,7 @@ export default function Admin() {
                           }
                           className="w-5 h-5"
                         />
-                        <span className="text-sm font-medium tracking-[0.06em]">ON SALE</span>
+                        <span className="font-calibri text-sm font-medium tracking-[0.06em]">ON SALE</span>
                       </label>
 
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -801,7 +801,7 @@ export default function Admin() {
                           }
                           className="w-5 h-5"
                         />
-                        <span className="text-sm font-medium tracking-[0.06em]">FEATURED</span>
+                        <span className="font-calibri text-sm font-medium tracking-[0.06em]">FEATURED</span>
                       </label>
                     </div>
                   </div>
@@ -829,14 +829,14 @@ export default function Admin() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-gray-100">
-                    <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">SKU</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">TITLE</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PRICE</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">STATUS</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
+                    <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">SKU</th>
+                    <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">TITLE</th>
+                    <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PRICE</th>
+                    <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">STATUS</th>
+                    <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                       WORKFLOW
                     </th>
-                    <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
+                    <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                       ACTIONS
                     </th>
                   </tr>
@@ -844,10 +844,10 @@ export default function Admin() {
                 <tbody>
                   {products.map((product) => (
                     <tr key={product.id} className="border-b border-gray-200 hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm">{product.sku}</td>
-                      <td className="px-4 py-3 text-sm">{product.title}</td>
-                      <td className="px-4 py-3 text-sm">${product.price.toLocaleString()}</td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="font-calibri px-4 py-3 text-sm">{product.sku}</td>
+                      <td className="font-calibri px-4 py-3 text-sm">{product.title}</td>
+                      <td className="font-calibri px-4 py-3 text-sm">${product.price.toLocaleString()}</td>
+                      <td className="font-calibri px-4 py-3 text-sm">
                         <span
                           className={`px-2 py-1 text-xs font-medium tracking-[0.06em] ${
                             product.status === 'available'
@@ -860,8 +860,8 @@ export default function Admin() {
                           {product.status.toUpperCase()}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm">{product.workflow_stage}</td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="font-calibri px-4 py-3 text-sm">{product.workflow_stage}</td>
+                      <td className="font-calibri px-4 py-3 text-sm">
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleEditProduct(product)}
@@ -921,24 +921,24 @@ export default function Admin() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                          <p className="text-sm">
+                          <p className="font-calibri text-sm">
                             <span className="font-medium">Customer:</span> {offer.customer_name}
                           </p>
-                          <p className="text-sm">
+                          <p className="font-calibri text-sm">
                             <span className="font-medium">Email:</span> {offer.customer_email}
                           </p>
-                          <p className="text-sm">
+                          <p className="font-calibri text-sm">
                             <span className="font-medium">Phone:</span> {offer.customer_phone}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm">
+                          <p className="font-calibri text-sm">
                             <span className="font-medium">Offer Amount:</span> ${offer.offer_amount.toLocaleString()}
                           </p>
-                          <p className="text-sm">
+                          <p className="font-calibri text-sm">
                             <span className="font-medium">Original Price:</span> ${product?.price.toLocaleString()}
                           </p>
-                          <p className="text-sm">
+                          <p className="font-calibri text-sm">
                             <span className="font-medium">Submitted:</span> {new Date(offer.created_at).toLocaleDateString()}
                           </p>
                         </div>
@@ -946,8 +946,8 @@ export default function Admin() {
 
                       {offer.message && (
                         <div className="mb-4">
-                          <p className="text-sm font-medium mb-1">Message:</p>
-                          <p className="text-sm text-gray-700">{offer.message}</p>
+                          <p className="font-calibri text-sm font-medium mb-1">Message:</p>
+                          <p className="font-calibri text-sm text-gray-700">{offer.message}</p>
                         </div>
                       )}
 
@@ -988,19 +988,19 @@ export default function Admin() {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="bg-gray-100">
-                      <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-bold tracking-wider">
                         PRODUCT
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-bold tracking-wider">
                         SALE PRICE
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-bold tracking-wider">
                         PLATFORM
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-bold tracking-wider">
                         SALE DATE
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-bold tracking-wider">
                         CONSIGNOR PAID
                       </th>
                     </tr>
@@ -1010,20 +1010,20 @@ export default function Admin() {
                       const product = products.find((p) => p.id === sale.product_id);
                       return (
                         <tr key={sale.id} className="border-b border-gray-200 hover:bg-gray-50">
-                          <td className="px-4 py-3 text-sm">
+                          <td className="font-calibri px-4 py-3 text-sm">
                             <div>
                               <p className="font-bold">{product?.title || 'Unknown'}</p>
                               <p className="text-xs text-gray-600 font-light">{product?.sku}</p>
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-sm font-bold">
+                          <td className="font-calibri px-4 py-3 text-sm font-bold">
                             ${sale.sale_price.toLocaleString()}
                           </td>
-                          <td className="px-4 py-3 text-sm font-light">{sale.sold_on_platform}</td>
-                          <td className="px-4 py-3 text-sm font-light">
+                          <td className="font-calibri px-4 py-3 text-sm font-light">{sale.sold_on_platform}</td>
+                          <td className="font-calibri px-4 py-3 text-sm font-light">
                             {new Date(sale.sale_date).toLocaleDateString()}
                           </td>
-                          <td className="px-4 py-3 text-sm">
+                          <td className="font-calibri px-4 py-3 text-sm">
                             {sale.consignor_paid ? (
                               <span className="text-green-600 font-bold">YES</span>
                             ) : (
@@ -1057,22 +1057,22 @@ export default function Admin() {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="bg-gray-100">
-                      <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-bold tracking-wider">
                         SKU
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-bold tracking-wider">
                         TITLE
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-bold tracking-wider">
                         CUSTOMER
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-bold tracking-wider">
                         HOLD DATE
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-bold tracking-wider">
                         DAYS LEFT
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-bold tracking-wider">
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-bold tracking-wider">
                         ACTIONS
                       </th>
                     </tr>
@@ -1083,21 +1083,21 @@ export default function Admin() {
                       const daysLeft = calculateDaysUntilExpiration(hold.hold_until);
                       return (
                         <tr key={hold.id} className="border-b border-gray-200 hover:bg-gray-50">
-                          <td className="px-4 py-3 text-sm font-light">{product?.sku}</td>
-                          <td className="px-4 py-3 text-sm">
+                          <td className="font-calibri px-4 py-3 text-sm font-light">{product?.sku}</td>
+                          <td className="font-calibri px-4 py-3 text-sm">
                             <p className="font-bold">{product?.title || 'Unknown'}</p>
                           </td>
-                          <td className="px-4 py-3 text-sm">
+                          <td className="font-calibri px-4 py-3 text-sm">
                             <div>
                               <p className="font-bold">{hold.customer_name}</p>
                               <p className="text-xs text-gray-600 font-light">{hold.customer_email}</p>
                               <p className="text-xs text-gray-600 font-light">{hold.customer_phone}</p>
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-sm font-light">
+                          <td className="font-calibri px-4 py-3 text-sm font-light">
                             {new Date(hold.hold_date).toLocaleDateString()}
                           </td>
-                          <td className="px-4 py-3 text-sm">
+                          <td className="font-calibri px-4 py-3 text-sm">
                             <span
                               className={`px-2 py-1 text-xs font-bold ${
                                 daysLeft <= 7
@@ -1110,7 +1110,7 @@ export default function Admin() {
                               {daysLeft} DAYS
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-sm">
+                          <td className="font-calibri px-4 py-3 text-sm">
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={() => handleExtendHold(hold.id)}

@@ -145,7 +145,7 @@ export default function ConsignorReports() {
         <select
           value={selectedConsignor}
           onChange={(e) => setSelectedConsignor(e.target.value)}
-          className="px-4 py-2 border border-gray-300 focus:outline-none focus:border-black"
+          className="font-calibri px-4 py-2 border border-gray-300 focus:outline-none focus:border-black"
         >
           <option value="all">All Consignors</option>
           {consignors.map((consignor) => (
@@ -160,20 +160,20 @@ export default function ConsignorReports() {
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100">
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">CODE</th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">NAME</th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">CODE</th>
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">NAME</th>
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                 COMMISSION RATE
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                 TOTAL PRODUCTS
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">AVAILABLE</th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">SOLD</th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">AVAILABLE</th>
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">SOLD</th>
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                 TOTAL REVENUE
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
+              <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                 COMMISSION OWED
               </th>
             </tr>
@@ -181,23 +181,23 @@ export default function ConsignorReports() {
           <tbody>
             {filteredStats.map((stat) => (
               <tr key={stat.consignor.id} className="border-b border-gray-200 hover:bg-gray-50">
-                <td className="px-4 py-3 text-sm font-medium">{stat.consignor.consignor_code}</td>
-                <td className="px-4 py-3 text-sm">
+                <td className="font-calibri px-4 py-3 text-sm font-medium">{stat.consignor.consignor_code}</td>
+                <td className="font-calibri px-4 py-3 text-sm">
                   {stat.consignor.first_name} {stat.consignor.last_name}
                 </td>
-                <td className="px-4 py-3 text-sm">{stat.consignor.commission_rate}%</td>
-                <td className="px-4 py-3 text-sm">
+                <td className="font-calibri px-4 py-3 text-sm">{stat.consignor.commission_rate}%</td>
+                <td className="font-calibri px-4 py-3 text-sm">
                   <div className="flex items-center gap-2">
                     <Package className="w-4 h-4" />
                     <span>{stat.totalProducts}</span>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-sm">{stat.availableProducts}</td>
-                <td className="px-4 py-3 text-sm">{stat.soldProducts}</td>
-                <td className="px-4 py-3 text-sm font-medium">
+                <td className="font-calibri px-4 py-3 text-sm">{stat.availableProducts}</td>
+                <td className="font-calibri px-4 py-3 text-sm">{stat.soldProducts}</td>
+                <td className="font-calibri px-4 py-3 text-sm font-medium">
                   ${stat.totalRevenue.toLocaleString()}
                 </td>
-                <td className="px-4 py-3 text-sm">
+                <td className="font-calibri px-4 py-3 text-sm">
                   <span
                     className={`px-2 py-1 text-xs font-medium tracking-[0.06em] ${
                       stat.commissionOwed > 0
