@@ -24,9 +24,9 @@ export default function Footer() {
           <div>
             <h4 className="font-bold mb-4 tracking-wider">ALSO AVAILABLE ON</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="https://1stdibs.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition font-light">1stDibs</a></li>
-              <li><a href="https://charish.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition font-light">Charish</a></li>
-              <li><a href="https://ebay.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition font-light">eBay</a></li>
+              <li><a href="https://www.1stdibs.com/dealers/warehouse-414/?_ga=2.218083090.542038144.1661879061-207012027.1661280070" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition font-light">1stDibs</a></li>
+              <li><a href="https://www.chairish.com/shop/warehouse414?_ga=2.146694704.542038144.1661879061-207012027.1661280070" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition font-light">Charish</a></li>
+              <li><a href="https://www.ebay.com/str/warehouse414" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition font-light">eBay</a></li>
             </ul>
           </div>
         </div>
