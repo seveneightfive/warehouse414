@@ -17,19 +17,22 @@ export default function Header({ onSearch }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 shadow-md">
       {/* Top Row - Black Stripe */}
-      <div className="bg-black h-12 flex items-center justify-center">
-        <a href="/" className="block relative h-10 w-40 overflow-hidden">
+      <div className="bg-black h-16 flex items-center justify-center">
+        <a href="/" className="block relative h-16 w-52 overflow-visible">
           <img
             src="/warehouse414-logo-260.jpg"
             alt="Warehouse"
-            className="absolute top-0 left-0 w-full"
-            style={{ clipPath: 'inset(0 0 50% 0)' }}
+            className="absolute left-0 w-full h-auto"
+            style={{
+              clipPath: 'inset(0 0 52% 0)',
+              top: '0'
+            }}
           />
         </a>
       </div>
 
       {/* Bottom Row - White Stripe */}
-      <div className="bg-white h-18">
+      <div className="bg-white h-20">
         <div className="container mx-auto px-4 h-full">
           <div className="flex items-center justify-center h-full relative">
             {/* Navigation - Left */}
@@ -49,12 +52,15 @@ export default function Header({ onSearch }: HeaderProps) {
             </nav>
 
             {/* Center: 414 Logo */}
-            <a href="/" className="block relative h-16 w-40 overflow-hidden">
+            <a href="/" className="block relative h-20 w-52 overflow-visible">
               <img
                 src="/warehouse414-logo-260.jpg"
                 alt="414"
-                className="absolute w-full"
-                style={{ clipPath: 'inset(50% 0 0 0)', top: '-100%' }}
+                className="absolute w-full h-auto"
+                style={{
+                  clipPath: 'inset(48% 0 0 0)',
+                  top: '-48%'
+                }}
               />
             </a>
 
@@ -88,13 +94,16 @@ export default function Header({ onSearch }: HeaderProps) {
         <div className="fixed inset-0 z-50 bg-white md:hidden">
           <div className="flex flex-col h-full">
             {/* Mobile Menu Header */}
-            <div className="bg-black h-12 flex items-center justify-center px-4 relative">
-              <div className="block relative h-10 w-40 overflow-hidden">
+            <div className="bg-black h-16 flex items-center justify-center px-4 relative">
+              <div className="block relative h-16 w-52 overflow-visible">
                 <img
                   src="/warehouse414-logo-260.jpg"
                   alt="Warehouse"
-                  className="absolute top-0 left-0 w-full"
-                  style={{ clipPath: 'inset(0 0 50% 0)' }}
+                  className="absolute left-0 w-full h-auto"
+                  style={{
+                    clipPath: 'inset(0 0 52% 0)',
+                    top: '0'
+                  }}
                 />
               </div>
               <button onClick={() => setIsMenuOpen(false)} className="text-white p-2 absolute right-4">
