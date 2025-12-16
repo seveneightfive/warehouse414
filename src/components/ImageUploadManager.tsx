@@ -57,17 +57,17 @@ export function ImageUploadManager({
     onImagesChange(updatedImages, updatedFeatured);
   };
 
-  const uploadToB2 = async (file: File): Promise<string> => {
+  const uploadToBunny = async (file: File): Promise<string> => {
     const tempId = `uploading-${Date.now()}-${Math.random()}`;
     setUploadProgress((prev) => ({ ...prev, [tempId]: 0 }));
 
     try {
-      // Request signed upload URL from edge function
+      // Request upload URL from edge function
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
 
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-b2-upload-url`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-bunny-upload-url`,
         {
           method: 'POST',
           headers: {
@@ -87,19 +87,20 @@ export function ImageUploadManager({
         throw new Error(error.error || 'Failed to get upload URL');
       }
 
-      const { uploadUrl, publicUrl } = await response.json();
+      const { uploadUrl, publicUrl, headers: uploadHeaders } = await response.json();
 
-      // Upload file directly to B2
+      // Upload file directly to Bunny.net
       const uploadResponse = await fetch(uploadUrl, {
         method: 'PUT',
         body: file,
         headers: {
-          'Content-Type': file.type,
+          'AccessKey': uploadHeaders.AccessKey,
+          'Content-Type': uploadHeaders['Content-Type'],
         },
       });
 
       if (!uploadResponse.ok) {
-        throw new Error('Failed to upload file to B2');
+        throw new Error('Failed to upload file to Bunny.net');
       }
 
       setUploadProgress((prev) => ({ ...prev, [tempId]: 100 }));
@@ -129,7 +130,7 @@ export function ImageUploadManager({
     const fileArray = Array.from(files);
     const uploadPromises = fileArray.map(async (file) => {
       try {
-        const url = await uploadToB2(file);
+        const url = await uploadToBunny(file);
         return url;
       } catch (error) {
         console.error(`Failed to upload ${file.name}:`, error);
