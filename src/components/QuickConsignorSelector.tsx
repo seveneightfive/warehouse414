@@ -117,7 +117,7 @@ export default function QuickConsignorSelector({ value, onChange, onConsignorAdd
       </button>
 
       {showAddForm && (
-        <div className="p-4 bg-gray-50 border border-gray-200 space-y-3">
+        <form onSubmit={handleAddConsignor} className="p-4 bg-gray-50 border border-gray-200 space-y-3">
           <div>
             <label className="block text-sm font-medium mb-1 tracking-[0.06em]">
               FIRST NAME *
@@ -166,13 +166,13 @@ export default function QuickConsignorSelector({ value, onChange, onConsignorAdd
           )}
 
           <button
-            onClick={handleAddConsignor}
+            type="submit"
             disabled={submitting}
             className="w-full px-4 py-2 bg-black text-white text-sm hover:bg-gray-800 transition disabled:opacity-50"
           >
             {submitting ? 'Adding...' : 'Add Consignor'}
           </button>
-        </div>
+        </form>
       )}
     </div>
   );
