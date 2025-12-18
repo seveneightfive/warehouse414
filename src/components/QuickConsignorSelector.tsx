@@ -49,8 +49,19 @@ export default function QuickConsignorSelector({ value, onChange, onConsignorAdd
     setError(null);
 
     try {
-      if (!formData.first_name || !formData.consignor_code) {
-        setError('Name and Code are required');
+      if (!formData.first_name || !formData.last_name) {
+        setError('First and Last name are required');
+        setSubmitting(false);
+        return;
+      }
+
+      const { data: consignorCode, error: codeErr } = await supabase.rpc('generate_consignor_code', {
+        last_name_input: formData.last_name,
+      });
+
+      if (codeErr) {
+        console.error('Error generating consignor code:', codeErr);
+        setError('Failed to generate consignor code');
         setSubmitting(false);
         return;
       }
@@ -59,15 +70,18 @@ export default function QuickConsignorSelector({ value, onChange, onConsignorAdd
         .from('consignors')
         .insert({
           first_name: formData.first_name,
-          last_name: formData.last_name || '',
-          consignor_code: formData.consignor_code,
-          commission_rate: 0,
+          last_name: formData.last_name,
+          consignor_code: consignorCode,
+          commission_rate: 50,
           is_active: true,
         })
         .select()
         .single();
 
-      if (err) throw err;
+      if (err) {
+        console.error('Error inserting consignor:', err);
+        throw err;
+      }
 
       const newConsignor = data as Consignor;
       setConsignors([...consignors, newConsignor]);
@@ -81,7 +95,7 @@ export default function QuickConsignorSelector({ value, onChange, onConsignorAdd
       setShowAddForm(false);
     } catch (err) {
       console.error('Error adding consignor:', err);
-      setError('Failed to add consignor');
+      setError('Error saving consignor. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -134,28 +148,15 @@ export default function QuickConsignorSelector({ value, onChange, onConsignorAdd
 
           <div>
             <label className="block text-sm font-medium mb-1 tracking-[0.06em]">
-              LAST NAME
-            </label>
-            <input
-              type="text"
-              value={formData.last_name}
-              onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-              className="font-calibri w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-black text-sm"
-              placeholder="Last name (optional)"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1 tracking-[0.06em]">
-              CONSIGNOR CODE *
+              LAST NAME *
             </label>
             <input
               type="text"
               required
-              value={formData.consignor_code}
-              onChange={(e) => setFormData({ ...formData, consignor_code: e.target.value })}
+              value={formData.last_name}
+              onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
               className="font-calibri w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-black text-sm"
-              placeholder="e.g., CONS001"
+              placeholder="Last name"
             />
           </div>
 
