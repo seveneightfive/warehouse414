@@ -4,6 +4,7 @@ import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
+import AuthCallback from './pages/AuthCallback';
 import { ShopStateProvider } from './contexts/ShopStateContext';
 import { AuthProvider } from './contexts/AuthContext';
 
@@ -45,6 +46,10 @@ function App() {
 
     if (currentPath === '/login') {
       return <Login />;
+    }
+
+    if (currentPath === '/auth/callback') {
+      return <AuthCallback />;
     }
 
     if (currentPath === '/admin') {

@@ -28,6 +28,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function Admin() {
   const { user, loading: authLoading, signOut } = useAuth();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState<'products' | 'offers' | 'sales' | 'holds' | 'consignors' | 'tasks' | 'reports' | 'batches' | 'batch-reports'>('products');
   const [products, setProducts] = useState<Product[]>([]);
   const [offers, setOffers] = useState<ProductOffer[]>([]);
@@ -67,10 +68,30 @@ export default function Admin() {
   });
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      window.history.pushState({}, '', '/login');
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    }
+    const checkAdminStatus = async () => {
+      if (!authLoading && !user) {
+        window.history.pushState({}, '', '/login');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+        return;
+      }
+
+      if (user && user.email) {
+        const { data, error } = await supabase
+          .from('admin_whitelist')
+          .select('is_active')
+          .eq('email', user.email)
+          .eq('is_active', true)
+          .maybeSingle();
+
+        if (error || !data) {
+          setIsAdmin(false);
+        } else {
+          setIsAdmin(true);
+        }
+      }
+    };
+
+    checkAdminStatus();
   }, [user, authLoading]);
 
   useEffect(() => {
@@ -425,7 +446,7 @@ export default function Admin() {
     pendingOffers: offers.filter((o) => o.status === 'pending').length,
   };
 
-  if (authLoading || loading) {
+  if (authLoading || loading || isAdmin === null) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-12 text-center">
@@ -437,6 +458,31 @@ export default function Admin() {
 
   if (!user) {
     return null;
+  }
+
+  if (isAdmin === false) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-md mx-auto text-center">
+            <div className="rounded-full h-16 w-16 bg-red-100 mx-auto mb-4 flex items-center justify-center">
+              <XCircle className="h-8 w-8 text-red-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
+            <p className="text-gray-600 mb-6">
+              You do not have permission to access the admin panel. Please contact an administrator if you believe this is an error.
+            </p>
+            <button
+              onClick={signOut}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-800 hover:bg-gray-900"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </Layout>
+    );
   }
 
   return (
