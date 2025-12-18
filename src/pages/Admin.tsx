@@ -1,17 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Package,
-  Users,
-  BarChart3,
-  Settings,
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
-  Calendar,
-  FileText,
-  Workflow,
-} from 'lucide-react';
+import { Package, Users, BarChart3, Settings, Plus, CreditCard as Edit, Trash2, Eye, Calendar, FileText, Workflow } from 'lucide-react';
 import Layout from '../components/Layout';
 import { supabase } from '../lib/supabase';
 import type { Product, Category, Subcategory } from '../lib/types';
