@@ -9,14 +9,16 @@ import WorkflowTaskManagement from '../components/WorkflowTaskManagement';
 import SalesBatchManagement from '../components/SalesBatchManagement';
 import SalesBatchReports from '../components/SalesBatchReports';
 import ConsignorReports from '../components/ConsignorReports';
+import AddInventoryForm from '../components/AddInventoryForm';
 
-type AdminTab = 
-  | 'products' 
-  | 'consignors' 
-  | 'workflow' 
-  | 'sales-batches' 
-  | 'batch-reports' 
-  | 'consignor-reports' 
+type AdminTab =
+  | 'products'
+  | 'add-inventory'
+  | 'consignors'
+  | 'workflow'
+  | 'sales-batches'
+  | 'batch-reports'
+  | 'consignor-reports'
   | 'categories';
 
 export default function Admin() {
@@ -40,6 +42,7 @@ export default function Admin() {
     crate_size: '',
     price: '',
     sale_price: '',
+    purchase_price: '',
     is_on_sale: false,
     status: 'inventory' as const,
     featured_image_url: '',
@@ -126,6 +129,7 @@ export default function Admin() {
         crate_size: productForm.crate_size || null,
         price: parseFloat(productForm.price),
         sale_price: productForm.sale_price ? parseFloat(productForm.sale_price) : null,
+        purchase_price: productForm.purchase_price ? parseFloat(productForm.purchase_price) : null,
         is_on_sale: productForm.is_on_sale,
         status: productForm.status,
         featured_image_url: featuredImageUrl,
@@ -209,6 +213,7 @@ export default function Admin() {
       crate_size: '',
       price: '',
       sale_price: '',
+      purchase_price: '',
       is_on_sale: false,
       status: 'inventory',
       featured_image_url: '',
@@ -238,6 +243,7 @@ export default function Admin() {
       crate_size: product.crate_size || '',
       price: product.price.toString(),
       sale_price: product.sale_price?.toString() || '',
+      purchase_price: product.purchase_price?.toString() || '',
       is_on_sale: product.is_on_sale,
       status: product.status,
       featured_image_url: product.featured_image_url || '',
@@ -330,6 +336,18 @@ export default function Admin() {
                 >
                   <Package className="w-5 h-5" />
                   PRODUCTS
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('add-inventory')}
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-left transition tracking-[0.06em] ${
+                    activeTab === 'add-inventory'
+                      ? 'bg-black text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <Plus className="w-5 h-5" />
+                  ADD INVENTORY
                 </button>
 
                 <button
@@ -601,7 +619,7 @@ export default function Admin() {
                           />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                           <div>
                             <label className="block text-sm font-medium mb-2 tracking-[0.06em]">
                               PRICE *
@@ -628,6 +646,22 @@ export default function Admin() {
                               value={productForm.sale_price}
                               onChange={(e) =>
                                 setProductForm({ ...productForm, sale_price: e.target.value })
+                              }
+                              className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium mb-2 tracking-[0.06em]">
+                              PURCHASE PRICE
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={productForm.purchase_price}
+                              onChange={(e) =>
+                                setProductForm({ ...productForm, purchase_price: e.target.value })
                               }
                               className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                             />
@@ -684,16 +718,28 @@ export default function Admin() {
                                     | 'descriptions'
                                     | 'photos'
                                     | 'ready'
-                                    | 'listed',
+                                    | 'listed'
+                                    | 'preparation'
+                                    | 'photo'
+                                    | 'edit'
+                                    | 'for_submission'
+                                    | 'scheduled'
+                                    | 'received',
                                 })
                               }
                               className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                             >
+                              <option value="received">Received</option>
                               <option value="research">Research</option>
                               <option value="descriptions">Descriptions</option>
                               <option value="photos">Photos</option>
                               <option value="ready">Ready</option>
                               <option value="listed">Listed</option>
+                              <option value="preparation">Preparation</option>
+                              <option value="photo">Photo</option>
+                              <option value="edit">Edit</option>
+                              <option value="for_submission">For Submission</option>
+                              <option value="scheduled">Scheduled</option>
                             </select>
                           </div>
 
@@ -818,14 +864,28 @@ export default function Admin() {
                             <td className="font-calibri px-4 py-3 text-sm">
                               <span
                                 className={`px-2 py-1 text-xs font-medium tracking-[0.06em] ${
-                                  product.workflow_stage === 'research'
+                                  product.workflow_stage === 'received'
+                                    ? 'bg-sky-100 text-sky-800'
+                                    : product.workflow_stage === 'research'
                                     ? 'bg-blue-100 text-blue-800'
                                     : product.workflow_stage === 'descriptions'
-                                    ? 'bg-purple-100 text-purple-800'
+                                    ? 'bg-cyan-100 text-cyan-800'
                                     : product.workflow_stage === 'photos'
                                     ? 'bg-yellow-100 text-yellow-800'
                                     : product.workflow_stage === 'ready'
                                     ? 'bg-green-100 text-green-800'
+                                    : product.workflow_stage === 'listed'
+                                    ? 'bg-emerald-100 text-emerald-800'
+                                    : product.workflow_stage === 'scheduled'
+                                    ? 'bg-orange-100 text-orange-800'
+                                    : product.workflow_stage === 'preparation'
+                                    ? 'bg-amber-100 text-amber-800'
+                                    : product.workflow_stage === 'photo'
+                                    ? 'bg-yellow-100 text-yellow-800'
+                                    : product.workflow_stage === 'edit'
+                                    ? 'bg-rose-100 text-rose-800'
+                                    : product.workflow_stage === 'for_submission'
+                                    ? 'bg-red-100 text-red-800'
                                     : 'bg-gray-100 text-gray-800'
                                 }`}
                               >
@@ -871,6 +931,7 @@ export default function Admin() {
                 </div>
               )}
 
+              {activeTab === 'add-inventory' && <AddInventoryForm />}
               {activeTab === 'consignors' && <ConsignorManagement />}
               {activeTab === 'workflow' && <WorkflowTaskManagement />}
               {activeTab === 'sales-batches' && <SalesBatchManagement />}

@@ -83,7 +83,8 @@ export type Database = {
           featured_image_url: string | null;
           consignor: string | null;
           consignor_id: string | null;
-          workflow_stage: 'research' | 'descriptions' | 'photos' | 'ready' | 'listed' | 'preparation' | 'photo' | 'edit' | 'for_submission' | 'scheduled';
+          workflow_stage: 'research' | 'descriptions' | 'photos' | 'ready' | 'listed' | 'preparation' | 'photo' | 'edit' | 'for_submission' | 'scheduled' | 'received';
+          purchase_price: number | null;
           workflow_stage_updated_at: string | null;
           workflow_status: string;
           sales_batch_id: string | null;
