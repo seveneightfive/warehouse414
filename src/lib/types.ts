@@ -53,6 +53,17 @@ export type Database = {
         Insert: Omit<Database['public']['Tables']['sku_counters']['Row'], 'id' | 'last_updated'>;
         Update: Partial<Database['public']['Tables']['sku_counters']['Insert']>;
       };
+      sales_batches: {
+        Row: {
+          id: string;
+          title: string;
+          submission_date: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['sales_batches']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['sales_batches']['Insert']>;
+      };
       products: {
         Row: {
           id: string;
@@ -68,12 +79,18 @@ export type Database = {
           price: number;
           sale_price: number | null;
           is_on_sale: boolean;
-          status: 'available' | 'on_hold' | 'sold';
+          status: 'available' | 'on_hold' | 'sold' | 'inventory';
           featured_image_url: string | null;
           consignor: string | null;
           consignor_id: string | null;
-          workflow_stage: 'research' | 'descriptions' | 'photos' | 'ready' | 'listed';
+          workflow_stage: 'research' | 'descriptions' | 'photos' | 'ready' | 'listed' | 'preparation' | 'photo' | 'edit' | 'for_submission' | 'scheduled';
           workflow_stage_updated_at: string | null;
+          workflow_status: string;
+          sales_batch_id: string | null;
+          prep_due_date: string | null;
+          photo_due_date: string | null;
+          edit_due_date: string | null;
+          submission_due_date: string | null;
           is_featured: boolean;
           category_id: string | null;
           subcategory_id: string | null;
@@ -182,6 +199,7 @@ export type Category = Database['public']['Tables']['categories']['Row'];
 export type Subcategory = Database['public']['Tables']['subcategories']['Row'];
 export type Consignor = Database['public']['Tables']['consignors']['Row'];
 export type SKUCounter = Database['public']['Tables']['sku_counters']['Row'];
+export type SalesBatch = Database['public']['Tables']['sales_batches']['Row'];
 export type Product = Database['public']['Tables']['products']['Row'] & {
   category?: { name: string; slug: string } | null;
   subcategory?: { name: string; slug: string } | null;

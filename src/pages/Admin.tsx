@@ -21,12 +21,14 @@ import type { Product, ProductOffer, ProductSale, ProductHold, Category, Subcate
 import ConsignorManagement from '../components/ConsignorManagement';
 import WorkflowTaskManagement from '../components/WorkflowTaskManagement';
 import ConsignorReports from '../components/ConsignorReports';
+import SalesBatchManagement from '../components/SalesBatchManagement';
+import SalesBatchReports from '../components/SalesBatchReports';
 import { ImageUploadManager, type ImageData } from '../components/ImageUploadManager';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Admin() {
   const { user, loading: authLoading, signOut } = useAuth();
-  const [activeTab, setActiveTab] = useState<'products' | 'offers' | 'sales' | 'holds' | 'consignors' | 'tasks' | 'reports'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'offers' | 'sales' | 'holds' | 'consignors' | 'tasks' | 'reports' | 'batches' | 'batch-reports'>('products');
   const [products, setProducts] = useState<Product[]>([]);
   const [offers, setOffers] = useState<ProductOffer[]>([]);
   const [sales, setSales] = useState<ProductSale[]>([]);
@@ -197,7 +199,8 @@ export default function Admin() {
         is_featured: productForm.is_featured,
         category_id: productForm.category_id || null,
         subcategory_id: productForm.subcategory_id || null,
-        status: 'available' as const,
+        status: 'inventory' as const,
+        workflow_status: 'active',
       };
 
       let productId: string;
@@ -379,6 +382,42 @@ export default function Admin() {
     return diffDays;
   };
 
+  const handleApproveProduct = async (productId: string) => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .update({
+          workflow_status: 'complete',
+          status: 'available',
+        })
+        .eq('id', productId);
+
+      if (error) throw error;
+      alert('Product approved and moved to available status!');
+      fetchAdminData();
+    } catch (error) {
+      console.error('Error approving product:', error);
+      alert('Error approving product. Please try again.');
+    }
+  };
+
+  const getWorkflowStageColor = (stage: string) => {
+    switch (stage) {
+      case 'preparation':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'photo':
+        return 'bg-green-100 text-green-800';
+      case 'edit':
+        return 'bg-blue-100 text-blue-800';
+      case 'for_submission':
+        return 'bg-gray-100 text-gray-800';
+      case 'scheduled':
+        return 'bg-gray-200 text-gray-800';
+      default:
+        return 'bg-gray-50 text-gray-700';
+    }
+  };
+
   const stats = {
     totalProducts: products.length,
     availableProducts: products.filter((p) => p.status === 'available').length,
@@ -463,6 +502,16 @@ export default function Admin() {
             INVENTORY
           </button>
           <button
+            onClick={() => setActiveTab('batches')}
+            className={`px-6 py-3 tracking-[0.06em] whitespace-nowrap ${
+              activeTab === 'batches'
+                ? 'border-b-4 border-black text-black'
+                : 'text-gray-500 hover:text-black'
+            }`}
+          >
+            SALES BATCHES
+          </button>
+          <button
             onClick={() => setActiveTab('consignors')}
             className={`px-6 py-3 tracking-[0.06em] whitespace-nowrap ${
               activeTab === 'consignors'
@@ -521,6 +570,16 @@ export default function Admin() {
             }`}
           >
             REPORTS
+          </button>
+          <button
+            onClick={() => setActiveTab('batch-reports')}
+            className={`px-6 py-3 tracking-[0.06em] whitespace-nowrap ${
+              activeTab === 'batch-reports'
+                ? 'border-b-4 border-black text-black'
+                : 'text-gray-500 hover:text-black'
+            }`}
+          >
+            BATCH REPORTS
           </button>
         </div>
 
@@ -739,6 +798,11 @@ export default function Admin() {
                       <option value="photos">Photos</option>
                       <option value="ready">Ready</option>
                       <option value="listed">Listed</option>
+                      <option value="scheduled">Scheduled</option>
+                      <option value="preparation">Preparation</option>
+                      <option value="photo">Photo</option>
+                      <option value="edit">Edit</option>
+                      <option value="for_submission">For Submission</option>
                     </select>
 
                     <select
@@ -834,7 +898,7 @@ export default function Admin() {
                     <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PRICE</th>
                     <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">STATUS</th>
                     <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
-                      WORKFLOW
+                      WORKFLOW STAGE
                     </th>
                     <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">
                       ACTIONS
@@ -842,45 +906,60 @@ export default function Admin() {
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((product) => (
-                    <tr key={product.id} className="border-b border-gray-200 hover:bg-gray-50">
-                      <td className="font-calibri px-4 py-3 text-sm">{product.sku}</td>
-                      <td className="font-calibri px-4 py-3 text-sm">{product.title}</td>
-                      <td className="font-calibri px-4 py-3 text-sm">${product.price.toLocaleString()}</td>
-                      <td className="font-calibri px-4 py-3 text-sm">
-                        <span
-                          className={`px-2 py-1 text-xs font-medium tracking-[0.06em] ${
-                            product.status === 'available'
-                              ? 'bg-green-100 text-green-800'
-                              : product.status === 'on_hold'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}
+                  {products
+                    .filter((p) => p.status === 'inventory')
+                    .map((product) => {
+                      const rowColor = getWorkflowStageColor(product.workflow_stage);
+                      return (
+                        <tr
+                          key={product.id}
+                          className={`border-b border-gray-200 hover:opacity-80 ${rowColor}`}
                         >
-                          {product.status.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="font-calibri px-4 py-3 text-sm">{product.workflow_stage}</td>
-                      <td className="font-calibri px-4 py-3 text-sm">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleEditProduct(product)}
-                            className="p-2 hover:bg-gray-200 rounded transition"
-                            title="Edit"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <a
-                            href={`/product/${product.id}`}
-                            className="p-2 hover:bg-gray-200 rounded transition"
-                            title="View"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </a>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                          <td className="font-calibri px-4 py-3 text-sm font-medium">{product.sku}</td>
+                          <td className="font-calibri px-4 py-3 text-sm">{product.title}</td>
+                          <td className="font-calibri px-4 py-3 text-sm">${product.price.toLocaleString()}</td>
+                          <td className="font-calibri px-4 py-3 text-sm">
+                            <span className="px-2 py-1 text-xs font-medium tracking-[0.06em] bg-blue-100 text-blue-800">
+                              {product.status.toUpperCase()}
+                            </span>
+                          </td>
+                          <td className="font-calibri px-4 py-3 text-sm">
+                            <span className="px-2 py-1 text-xs font-medium tracking-[0.06em]">
+                              {product.workflow_stage.toUpperCase().replace('_', ' ')}
+                            </span>
+                          </td>
+                          <td className="font-calibri px-4 py-3 text-sm">
+                            <div className="flex items-center gap-2">
+                              {product.workflow_stage === 'for_submission' &&
+                                product.workflow_status === 'active' && (
+                                  <button
+                                    onClick={() => handleApproveProduct(product.id)}
+                                    className="flex items-center gap-1 px-3 py-1 bg-green-600 text-white hover:bg-green-700 transition text-xs font-medium tracking-[0.06em]"
+                                    title="Approve and move to available"
+                                  >
+                                    <CheckCircle className="w-4 h-4" />
+                                    APPROVE
+                                  </button>
+                                )}
+                              <button
+                                onClick={() => handleEditProduct(product)}
+                                className="p-2 hover:bg-gray-200 rounded transition"
+                                title="Edit"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <a
+                                href={`/product/${product.id}`}
+                                className="p-2 hover:bg-gray-200 rounded transition"
+                                title="View"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                 </tbody>
               </table>
             </div>
@@ -1045,6 +1124,10 @@ export default function Admin() {
         {activeTab === 'tasks' && <WorkflowTaskManagement />}
 
         {activeTab === 'reports' && <ConsignorReports />}
+
+        {activeTab === 'batches' && <SalesBatchManagement />}
+
+        {activeTab === 'batch-reports' && <SalesBatchReports />}
 
         {activeTab === 'holds' && (
           <div>
