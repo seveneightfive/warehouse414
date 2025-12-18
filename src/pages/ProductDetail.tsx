@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, Tag, X, Mail, ChevronDown, ArrowLeft } from 'lucide-react';
+import { ShoppingCart, DollarSign, Clock, FileText, X, ChevronRight } from 'lucide-react';
 import Layout from '../components/Layout';
 import { supabase } from '../lib/supabase';
 import type { Product, ProductImage, ProductHold } from '../lib/types';
@@ -16,11 +16,18 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showHoldModal, setShowHoldModal] = useState(false);
   const [showOfferModal, setShowOfferModal] = useState(false);
-  const [showSimilarModal, setShowSimilarModal] = useState(false);
   const [showPDFModal, setShowPDFModal] = useState(false);
-  const [showInterestModal, setShowInterestModal] = useState(false);
+
+  const [purchaseForm, setPurchaseForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    needsShipping: false,
+    shippingAddress: '',
+  });
 
   const [holdForm, setHoldForm] = useState({
     name: '',
@@ -36,24 +43,10 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
     message: '',
   });
 
-  const [similarForm, setSimilarForm] = useState({
-    name: '',
-    email: '',
-    message: '',
-  });
-
   const [pdfForm, setPdfForm] = useState({
     email: '',
     includePrice: true,
   });
-
-  const [interestForm, setInterestForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-  });
-
-  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProductData();
@@ -102,6 +95,71 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
     }
   };
 
+  const handlePurchaseInquiry = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!product) return;
+
+    try {
+      const displayPrice = product.is_on_sale && product.sale_price ? product.sale_price : product.price;
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-purchase-inquiry`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            productTitle: product.title,
+            productSku: product.sku,
+            productPrice: displayPrice,
+            customerName: purchaseForm.name,
+            customerEmail: purchaseForm.email,
+            customerPhone: purchaseForm.phone,
+            needsShipping: purchaseForm.needsShipping,
+            shippingAddress: purchaseForm.shippingAddress,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to send purchase inquiry');
+      }
+
+      const holdUntil = new Date();
+      holdUntil.setDate(holdUntil.getDate() + 45);
+
+      const { error: holdError } = await supabase.from('product_holds').insert({
+        product_id: productId,
+        customer_name: purchaseForm.name,
+        customer_email: purchaseForm.email,
+        customer_phone: purchaseForm.phone,
+        hold_date: new Date().toISOString(),
+        hold_until: holdUntil.toISOString(),
+        is_active: true,
+      });
+
+      if (holdError) throw holdError;
+
+      const { error: updateError } = await supabase
+        .from('products')
+        .update({ status: 'on_hold' })
+        .eq('id', productId);
+
+      if (updateError) throw updateError;
+
+      alert('Thank you! You will receive a personalized invoice in your email to safely facilitate payment. For questions, call 785-232-8008');
+      setShowPurchaseModal(false);
+      setPurchaseForm({ name: '', email: '', phone: '', needsShipping: false, shippingAddress: '' });
+      fetchProductData();
+    } catch (error) {
+      console.error('Error submitting purchase inquiry:', error);
+      alert('Error submitting your inquiry. Please try again or call us at 785-232-8008');
+    }
+  };
+
   const handlePlaceHold = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -130,6 +188,7 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
 
       alert('Hold placed successfully! You have 45 days to complete your purchase.');
       setShowHoldModal(false);
+      setHoldForm({ name: '', email: '', phone: '' });
       fetchProductData();
     } catch (error) {
       console.error('Error placing hold:', error);
@@ -165,28 +224,6 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
     }
   };
 
-  const handleRequestSimilar = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const emailBody = `
-Request for Similar Item
-
-Product: ${product?.title}
-SKU: ${product?.sku}
-
-Customer Name: ${similarForm.name}
-Customer Email: ${similarForm.email}
-Message: ${similarForm.message}
-    `.trim();
-
-    console.log('Would send email to sales@warehouse414.com:', emailBody);
-    alert(
-      'Request submitted successfully! We will contact you at ' + similarForm.email
-    );
-    setShowSimilarModal(false);
-    setSimilarForm({ name: '', email: '', message: '' });
-  };
-
   const handleDownloadPDF = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -217,52 +254,6 @@ Message: ${similarForm.message}
     }
   };
 
-  const handleExpressInterest = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!product) return;
-
-    try {
-      const { error: dbError } = await supabase.from('hold_interest_notifications').insert({
-        product_id: productId,
-        customer_name: interestForm.name,
-        customer_email: interestForm.email,
-        customer_phone: interestForm.phone,
-      });
-
-      if (dbError) throw dbError;
-
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-hold-interest-notification`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            productTitle: product.title,
-            productSku: product.sku,
-            customerName: interestForm.name,
-            customerEmail: interestForm.email,
-            customerPhone: interestForm.phone,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to send notification');
-      }
-
-      alert('Thank you for your interest! We will contact you if this item becomes available.');
-      setShowInterestModal(false);
-      setInterestForm({ name: '', email: '', phone: '' });
-    } catch (error) {
-      console.error('Error submitting interest:', error);
-      alert('Error submitting your interest. Please try again or call us at 785.232.8008');
-    }
-  };
-
   if (loading) {
     return (
       <Layout>
@@ -289,18 +280,15 @@ Message: ${similarForm.message}
   const displayPrice =
     product.is_on_sale && product.sale_price ? product.sale_price : product.price;
 
-  // Combine featured image with product images, ensuring no duplicates
   const allImages = (() => {
     const imageUrls = new Set<string>();
     const imageList: string[] = [];
 
-    // Add featured image first if it exists
     if (product.featured_image_url) {
       imageUrls.add(product.featured_image_url);
       imageList.push(product.featured_image_url);
     }
 
-    // Add other product images in order, skipping duplicates
     images.forEach((img) => {
       if (!imageUrls.has(img.image_url)) {
         imageUrls.add(img.image_url);
@@ -313,264 +301,297 @@ Message: ${similarForm.message}
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-12">
-        <button
-          onClick={() => window.history.back()}
-          className="flex items-center gap-2 mb-6 text-black hover:text-gray-600 transition group"
-        >
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-          <span className="font-medium tracking-wider">BACK TO SHOP</span>
-        </button>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div>
-            <div className="relative aspect-square bg-gray-100 mb-4">
-              {selectedImage ? (
-                <img
-                  src={selectedImage}
-                  alt={product.title}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  No Image
-                </div>
-              )}
-
-              {product.status === 'on_hold' && (
-                <div className="absolute top-6 right-6 bg-red-900 text-white px-6 py-3 text-sm font-bold tracking-wider">
-                  ON HOLD
-                </div>
-              )}
-
-              {product.status === 'sold' && (
-                <div className="absolute top-6 right-6 bg-black text-white px-6 py-3 text-sm font-bold tracking-wider">
-                  SOLD
-                </div>
-              )}
-
-              {product.is_on_sale && product.status === 'available' && (
-                <div className="absolute top-6 right-6 bg-red-600 text-white px-6 py-3 text-sm font-bold tracking-wider flex items-center gap-2">
-                  <Tag className="w-4 h-4" />
-                  SALE
-                </div>
-              )}
-            </div>
-
-            {allImages.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
-                {allImages.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedImage(img)}
-                    className={`aspect-square border-2 ${
-                      selectedImage === img ? 'border-black' : 'border-gray-200'
-                    } hover:border-black transition`}
-                  >
-                    <img
-                      src={img}
-                      alt={`View ${idx + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
+      <div className="font-jost">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center gap-2 text-sm text-gray-600 mb-8">
+            <a href="/" className="hover:text-black transition">Home</a>
+            <ChevronRight className="w-4 h-4" />
+            <a href="/shop" className="hover:text-black transition">Shop</a>
+            <ChevronRight className="w-4 h-4" />
+            {product.category && (
+              <>
+                <a
+                  href={`/shop?category=${product.category.slug}`}
+                  className="hover:text-black transition"
+                >
+                  {product.category.name}
+                </a>
+                <ChevronRight className="w-4 h-4" />
+              </>
             )}
+            <span className="text-black">{product.title}</span>
           </div>
 
-          <div>
-            <h1 className="text-4xl font-bold tracking-wide mb-4">{product.title}</h1>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-7">
+              <div className="relative aspect-square bg-gray-100 mb-4">
+                {selectedImage ? (
+                  <img
+                    src={selectedImage}
+                    alt={product.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    No Image
+                  </div>
+                )}
 
-            <div className="h-1 bg-black mb-6"></div>
+                {product.status === 'on_hold' && (
+                  <div className="absolute top-4 right-4 bg-amber-600 text-white px-4 py-2 text-xs font-semibold uppercase">
+                    On Hold
+                  </div>
+                )}
 
-            <div className="mb-6">
-              {product.is_on_sale && product.sale_price && (
-                <div className="flex items-center gap-4">
-                  <span className="text-3xl font-bold">${displayPrice.toLocaleString()}</span>
-                  <span className="text-xl text-gray-500 line-through">
-                    ${product.price.toLocaleString()}
-                  </span>
-                  <span className="bg-red-600 text-white px-3 py-1 text-sm font-bold tracking-wider">
-                    SALE
-                  </span>
-                </div>
-              )}
-              {(!product.is_on_sale || !product.sale_price) && (
-                <span className="text-3xl font-bold">${displayPrice.toLocaleString()}</span>
-              )}
-            </div>
+                {product.status === 'sold' && (
+                  <div className="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 text-xs font-semibold uppercase">
+                    Sold
+                  </div>
+                )}
 
-            {product.short_description && (
-              <p className="text-lg text-gray-700 mb-6 font-light">{product.short_description}</p>
-            )}
+                {product.is_on_sale && product.status === 'available' && (
+                  <div className="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 text-xs font-semibold uppercase">
+                    Sale
+                  </div>
+                )}
 
-            <div className="space-y-3 mb-8 text-sm">
-              {product.category && (
-                <div className="flex">
-                  <span className="font-bold w-32 tracking-wider lowercase">category:</span>
-                  <span className="font-light">{product.category.name}</span>
-                </div>
-              )}
-              {product.subcategory && product.subcategory.slug !== 'all' && (
-                <div className="flex">
-                  <span className="font-bold w-32 tracking-wider lowercase">subcategory:</span>
-                  <span className="font-light">{product.subcategory.name}</span>
-                </div>
-              )}
-              {product.designer && (
-                <div className="flex">
-                  <span className="font-bold w-32 tracking-wider lowercase">designer:</span>
-                  <span className="font-light">{product.designer}</span>
-                </div>
-              )}
-              {product.maker && (
-                <div className="flex">
-                  <span className="font-bold w-32 tracking-wider lowercase">maker:</span>
-                  <span className="font-light">{product.maker}</span>
-                </div>
-              )}
-              {product.material && (
-                <div className="flex">
-                  <span className="font-bold w-32 tracking-wider lowercase">material:</span>
-                  <span className="font-light">{product.material}</span>
-                </div>
-              )}
-              {product.dimensions && (
-                <div className="flex">
-                  <span className="font-bold w-32 tracking-wider lowercase">dimensions:</span>
-                  <span className="font-light">{product.dimensions}</span>
-                </div>
-              )}
-              <div className="flex">
-                <span className="font-bold w-32 tracking-wider lowercase">sku:</span>
-                <span className="font-light">{product.sku}</span>
-              </div>
-            </div>
-
-            {product.full_description && (
-              <div className="mb-8">
-                <h2 className="text-xl font-bold tracking-wider mb-3">DESCRIPTION</h2>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line font-light">
-                  {product.full_description}
-                </p>
-              </div>
-            )}
-
-            <div className="space-y-3">
-              {product.status === 'available' && (
-                <>
-                  <button
-                    onClick={() => setShowHoldModal(true)}
-                    className="w-full px-6 py-4 bg-red-900 text-white font-bold tracking-wider hover:bg-red-800 transition"
+                {product.category && (
+                  <a
+                    href={`/shop?category=${product.category.slug}`}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 bg-black text-white px-3 py-16 hover:bg-gray-800 transition"
+                    style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
                   >
-                    PLACE ON HOLD (45 DAYS)
+                    <span className="text-sm font-semibold tracking-widest uppercase">
+                      {product.category.name}
+                    </span>
+                  </a>
+                )}
+              </div>
+
+              {allImages.length > 1 && (
+                <div className="grid grid-cols-5 gap-2">
+                  {allImages.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedImage(img)}
+                      className={`aspect-square border-2 ${
+                        selectedImage === img ? 'border-black' : 'border-gray-300'
+                      } hover:border-black transition`}
+                    >
+                      <img
+                        src={img}
+                        alt={`View ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="lg:col-span-5">
+              <div className="bg-black text-white px-6 py-3 mb-6">
+                <h1 className="text-2xl font-normal">{product.title}</h1>
+              </div>
+
+              <div className="mb-6">
+                <div className="text-3xl font-light mb-2">${displayPrice.toLocaleString()}</div>
+                {product.is_on_sale && product.sale_price && (
+                  <div className="text-lg text-gray-500 line-through">
+                    ${product.price.toLocaleString()}
+                  </div>
+                )}
+              </div>
+
+              <div className="border border-gray-300 mb-6">
+                <table className="w-full text-sm">
+                  <tbody>
+                    {product.maker && (
+                      <tr className="border-b border-gray-300">
+                        <td className="px-4 py-3 font-semibold bg-gray-50 w-1/3">Makes</td>
+                        <td className="px-4 py-3">{product.maker}</td>
+                      </tr>
+                    )}
+                    {(product.designer || product.style_period) && (
+                      <tr className="border-b border-gray-300">
+                        <td className="px-4 py-3 font-semibold bg-gray-50">Style / Period</td>
+                        <td className="px-4 py-3">{product.designer || product.style_period || '-'}</td>
+                      </tr>
+                    )}
+                    {product.material && (
+                      <tr className="border-b border-gray-300">
+                        <td className="px-4 py-3 font-semibold bg-gray-50">Materials</td>
+                        <td className="px-4 py-3">{product.material}</td>
+                      </tr>
+                    )}
+                    {product.circa && (
+                      <tr className="border-b border-gray-300">
+                        <td className="px-4 py-3 font-semibold bg-gray-50">Circa</td>
+                        <td className="px-4 py-3">{product.circa}</td>
+                      </tr>
+                    )}
+                    {product.dimensions && (
+                      <tr className="border-b border-gray-300">
+                        <td className="px-4 py-3 font-semibold bg-gray-50">Dimensions</td>
+                        <td className="px-4 py-3">{product.dimensions}</td>
+                      </tr>
+                    )}
+                    <tr>
+                      <td className="px-4 py-3 font-semibold bg-gray-50">SKU</td>
+                      <td className="px-4 py-3">{product.sku}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {product.short_description && (
+                <div className="mb-6 text-gray-700 leading-relaxed">
+                  {product.short_description}
+                </div>
+              )}
+
+              {product.full_description && (
+                <div className="mb-6 text-gray-700 leading-relaxed">
+                  {product.full_description}
+                </div>
+              )}
+
+              {product.status === 'available' && (
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                  <button
+                    onClick={() => setShowPurchaseModal(true)}
+                    className="px-4 py-3 bg-black text-white font-semibold text-sm hover:bg-gray-800 transition flex items-center justify-center gap-2"
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                    Purchase
                   </button>
                   <button
                     onClick={() => setShowOfferModal(true)}
-                    className="w-full px-6 py-4 bg-black text-white font-bold tracking-wider hover:bg-gray-800 transition"
+                    className="px-4 py-3 border-2 border-black text-black font-semibold text-sm hover:bg-black hover:text-white transition flex items-center justify-center gap-2"
                   >
-                    MAKE AN OFFER
+                    <DollarSign className="w-4 h-4" />
+                    Make an Offer
                   </button>
-                </>
+                  <button
+                    onClick={() => setShowHoldModal(true)}
+                    className="px-4 py-3 border-2 border-black text-black font-semibold text-sm hover:bg-black hover:text-white transition flex items-center justify-center gap-2"
+                  >
+                    <Clock className="w-4 h-4" />
+                    Place on Hold
+                  </button>
+                  <button
+                    onClick={() => setShowPDFModal(true)}
+                    className="px-4 py-3 border-2 border-black text-black font-semibold text-sm hover:bg-black hover:text-white transition flex items-center justify-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Spec Sheet
+                  </button>
+                </div>
               )}
 
               {product.status === 'on_hold' && activeHold && (
-                <div className="space-y-3">
-                  <div className="p-4 bg-red-50 border-2 border-red-900">
-                    <p className="font-bold tracking-wider mb-2">ITEM ON HOLD</p>
-                    <p className="text-sm font-light">
-                      this item is on hold until{' '}
+                <div className="space-y-3 mb-6">
+                  <div className="p-4 bg-amber-50 border border-amber-600">
+                    <p className="font-semibold mb-1">Item On Hold</p>
+                    <p className="text-sm text-gray-700">
+                      This item is on hold until{' '}
                       {new Date(activeHold.hold_until).toLocaleDateString()}
                     </p>
                   </div>
                   <button
-                    onClick={() => setShowInterestModal(true)}
-                    className="w-full px-6 py-4 border-2 border-black text-black font-bold tracking-wider hover:bg-black hover:text-white transition flex items-center justify-center gap-2"
+                    onClick={() => setShowPDFModal(true)}
+                    className="w-full px-4 py-3 border-2 border-black text-black font-semibold text-sm hover:bg-black hover:text-white transition flex items-center justify-center gap-2"
                   >
-                    <Mail className="w-5 h-5" />
-                    ARE YOU INTERESTED IN THIS ITEM? LET US KNOW
+                    <FileText className="w-4 h-4" />
+                    Download Spec Sheet
                   </button>
                 </div>
               )}
 
               {product.status === 'sold' && (
-                <button
-                  onClick={() => setShowSimilarModal(true)}
-                  className="w-full px-6 py-4 bg-gray-800 text-white font-bold tracking-wider hover:bg-gray-900 transition"
-                >
-                  REQUEST SIMILAR ITEM
-                </button>
+                <div className="mb-6">
+                  <button
+                    onClick={() => setShowPDFModal(true)}
+                    className="w-full px-4 py-3 border-2 border-black text-black font-semibold text-sm hover:bg-black hover:text-white transition flex items-center justify-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Download Spec Sheet
+                  </button>
+                </div>
               )}
-
-              <button
-                onClick={() => setShowPDFModal(true)}
-                className="w-full px-6 py-4 border-2 border-black text-black font-bold tracking-wider hover:bg-black hover:text-white transition flex items-center justify-center gap-2"
-              >
-                <Download className="w-5 h-5" />
-                DOWNLOAD SPEC SHEET
-              </button>
             </div>
-
-            {(product.dimensions || product.crate_size) && (
-              <div className="mt-8 border-t pt-8">
-                <h2 className="text-2xl font-light mb-6">additional information</h2>
-
-                {product.dimensions && (
-                  <div className="mb-4">
-                    <button
-                      onClick={() => setOpenAccordion(openAccordion === 'dimensions' ? null : 'dimensions')}
-                      className="w-full bg-black text-white px-6 py-4 font-bold tracking-wider text-left flex items-center justify-between hover:bg-gray-800 transition"
-                    >
-                      dimensions
-                      <ChevronDown
-                        className={`w-5 h-5 transition-transform ${
-                          openAccordion === 'dimensions' ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-                    {openAccordion === 'dimensions' && (
-                      <div className="border border-t-0 border-black p-6 bg-white">
-                        <div className="font-light whitespace-pre-line">
-                          {product.dimensions}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {product.crate_size && (
-                  <div className="mb-4">
-                    <button
-                      onClick={() => setOpenAccordion(openAccordion === 'crate' ? null : 'crate')}
-                      className="w-full bg-black text-white px-6 py-4 font-bold tracking-wider text-left flex items-center justify-between hover:bg-gray-800 transition"
-                    >
-                      crate / box size
-                      <ChevronDown
-                        className={`w-5 h-5 transition-transform ${
-                          openAccordion === 'crate' ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-                    {openAccordion === 'crate' && (
-                      <div className="border border-t-0 border-black p-6 bg-white">
-                        <div className="font-light whitespace-pre-line">
-                          {product.crate_size}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
       </div>
 
+      {showPurchaseModal && (
+        <Modal onClose={() => setShowPurchaseModal(false)} title="Purchase Inquiry">
+          <form onSubmit={handlePurchaseInquiry} className="space-y-4">
+            <p className="text-sm text-gray-600">
+              Fill out the form below and you will receive a personalized invoice in your email to safely facilitate payment. For questions, call 785-232-8008
+            </p>
+            <input
+              type="text"
+              required
+              placeholder="Full Name"
+              value={purchaseForm.name}
+              onChange={(e) => setPurchaseForm({ ...purchaseForm, name: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+            />
+            <input
+              type="email"
+              required
+              placeholder="Email Address"
+              value={purchaseForm.email}
+              onChange={(e) => setPurchaseForm({ ...purchaseForm, email: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+            />
+            <input
+              type="tel"
+              required
+              placeholder="Phone Number"
+              value={purchaseForm.phone}
+              onChange={(e) => setPurchaseForm({ ...purchaseForm, phone: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+            />
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={purchaseForm.needsShipping}
+                onChange={(e) =>
+                  setPurchaseForm({ ...purchaseForm, needsShipping: e.target.checked })
+                }
+                className="mt-1 w-4 h-4"
+              />
+              <span className="text-sm">I need shipping for this item</span>
+            </label>
+            {purchaseForm.needsShipping && (
+              <textarea
+                required
+                placeholder="Shipping Address"
+                value={purchaseForm.shippingAddress}
+                onChange={(e) =>
+                  setPurchaseForm({ ...purchaseForm, shippingAddress: e.target.value })
+                }
+                rows={3}
+                className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+              />
+            )}
+            <button
+              type="submit"
+              className="w-full px-6 py-3 bg-black text-white font-semibold hover:bg-gray-800 transition"
+            >
+              Submit Purchase Inquiry
+            </button>
+          </form>
+        </Modal>
+      )}
+
       {showHoldModal && (
-        <Modal onClose={() => setShowHoldModal(false)} title="PLACE ITEM ON HOLD">
+        <Modal onClose={() => setShowHoldModal(false)} title="Place Item on Hold">
           <form onSubmit={handlePlaceHold} className="space-y-4">
-            <p className="text-sm text-gray-600 mb-4 font-light">
-              place this item on hold for 45 days. we'll contact you to complete the purchase or extend the hold in a few weeks. if you need immediate assistance, please call 785.232.8008
+            <p className="text-sm text-gray-600">
+              Place this item on hold for 45 days. We'll contact you to complete the purchase or extend the hold. For immediate assistance, call 785-232-8008
             </p>
             <input
               type="text"
@@ -583,7 +604,7 @@ Message: ${similarForm.message}
             <input
               type="email"
               required
-              placeholder="Email"
+              placeholder="Email Address"
               value={holdForm.email}
               onChange={(e) => setHoldForm({ ...holdForm, email: e.target.value })}
               className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
@@ -598,19 +619,19 @@ Message: ${similarForm.message}
             />
             <button
               type="submit"
-              className="w-full px-6 py-3 bg-red-900 text-white font-bold tracking-wider hover:bg-red-800 transition"
+              className="w-full px-6 py-3 bg-black text-white font-semibold hover:bg-gray-800 transition"
             >
-              CONFIRM HOLD
+              Confirm Hold
             </button>
           </form>
         </Modal>
       )}
 
       {showOfferModal && (
-        <Modal onClose={() => setShowOfferModal(false)} title="MAKE AN OFFER">
+        <Modal onClose={() => setShowOfferModal(false)} title="Make an Offer">
           <form onSubmit={handleMakeOffer} className="space-y-4">
-            <p className="text-sm text-gray-600 mb-4 font-light">
-              submit your offer and we'll review it. our team will contact you within 24-48 hours.
+            <p className="text-sm text-gray-600">
+              Submit your offer and we'll review it. Our team will contact you within 24-48 hours.
             </p>
             <input
               type="text"
@@ -623,7 +644,7 @@ Message: ${similarForm.message}
             <input
               type="email"
               required
-              placeholder="Email"
+              placeholder="Email Address"
               value={offerForm.email}
               onChange={(e) => setOfferForm({ ...offerForm, email: e.target.value })}
               className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
@@ -655,59 +676,19 @@ Message: ${similarForm.message}
             />
             <button
               type="submit"
-              className="w-full px-6 py-3 bg-black text-white font-bold tracking-wider hover:bg-gray-800 transition"
+              className="w-full px-6 py-3 bg-black text-white font-semibold hover:bg-gray-800 transition"
             >
-              SUBMIT OFFER
-            </button>
-          </form>
-        </Modal>
-      )}
-
-      {showSimilarModal && (
-        <Modal onClose={() => setShowSimilarModal(false)} title="REQUEST SIMILAR ITEM">
-          <form onSubmit={handleRequestSimilar} className="space-y-4">
-            <p className="text-sm text-gray-600 mb-4 font-light">
-              looking for something similar? let us know and we'll reach out if we find a match.
-            </p>
-            <input
-              type="text"
-              required
-              placeholder="Full Name"
-              value={similarForm.name}
-              onChange={(e) => setSimilarForm({ ...similarForm, name: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
-            />
-            <input
-              type="email"
-              required
-              placeholder="Email"
-              value={similarForm.email}
-              onChange={(e) => setSimilarForm({ ...similarForm, email: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
-            />
-            <textarea
-              required
-              placeholder="What are you looking for?"
-              value={similarForm.message}
-              onChange={(e) => setSimilarForm({ ...similarForm, message: e.target.value })}
-              rows={4}
-              className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
-            />
-            <button
-              type="submit"
-              className="w-full px-6 py-3 bg-black text-white font-bold tracking-wider hover:bg-gray-800 transition"
-            >
-              SUBMIT REQUEST
+              Submit Offer
             </button>
           </form>
         </Modal>
       )}
 
       {showPDFModal && (
-        <Modal onClose={() => setShowPDFModal(false)} title="DOWNLOAD SPEC SHEET">
+        <Modal onClose={() => setShowPDFModal(false)} title="Download Spec Sheet">
           <form onSubmit={handleDownloadPDF} className="space-y-4">
-            <p className="text-sm text-gray-600 mb-4 font-light">
-              enter your email to receive the product specification sheet as a pdf.
+            <p className="text-sm text-gray-600">
+              Enter your email to receive the product specification sheet as a PDF.
             </p>
             <input
               type="email"
@@ -724,55 +705,15 @@ Message: ${similarForm.message}
                 onChange={(e) =>
                   setPdfForm({ ...pdfForm, includePrice: e.target.checked })
                 }
-                className="w-5 h-5"
+                className="w-4 h-4"
               />
-              <span className="text-sm font-light">include pricing information</span>
+              <span className="text-sm">Include pricing information</span>
             </label>
             <button
               type="submit"
-              className="w-full px-6 py-3 bg-black text-white font-bold tracking-wider hover:bg-gray-800 transition"
+              className="w-full px-6 py-3 bg-black text-white font-semibold hover:bg-gray-800 transition"
             >
-              SEND PDF
-            </button>
-          </form>
-        </Modal>
-      )}
-
-      {showInterestModal && (
-        <Modal onClose={() => setShowInterestModal(false)} title="EXPRESS INTEREST">
-          <form onSubmit={handleExpressInterest} className="space-y-4">
-            <p className="text-sm text-gray-600 mb-4 font-light">
-              interested in this item? let us know and we'll contact you if it becomes available.
-            </p>
-            <input
-              type="text"
-              required
-              placeholder="Full Name"
-              value={interestForm.name}
-              onChange={(e) => setInterestForm({ ...interestForm, name: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
-            />
-            <input
-              type="email"
-              required
-              placeholder="Email"
-              value={interestForm.email}
-              onChange={(e) => setInterestForm({ ...interestForm, email: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
-            />
-            <input
-              type="tel"
-              required
-              placeholder="Phone Number"
-              value={interestForm.phone}
-              onChange={(e) => setInterestForm({ ...interestForm, phone: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
-            />
-            <button
-              type="submit"
-              className="w-full px-6 py-3 bg-black text-white font-bold tracking-wider hover:bg-gray-800 transition"
-            >
-              NOTIFY ME
+              Download PDF
             </button>
           </form>
         </Modal>
@@ -795,12 +736,12 @@ function Modal({
       <div className="bg-white max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold tracking-wider">{title}</h2>
+            <h2 className="text-xl font-semibold">{title}</h2>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded transition"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5" />
             </button>
           </div>
           {children}

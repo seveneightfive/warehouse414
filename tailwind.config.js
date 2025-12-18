@@ -5,6 +5,7 @@ export default {
     extend: {
       fontFamily: {
         'calibri': ['Calibri', 'Helvetica', 'Arial', 'sans-serif'],
+        'jost': ['Jost', 'sans-serif'],
       },
     },
   },
