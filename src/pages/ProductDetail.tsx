@@ -390,6 +390,12 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
             </div>
 
             <div className="lg:col-span-5">
+              {product.short_description && (
+                <div className="mb-4 text-gray-700 leading-relaxed font-jost font-light">
+                  {product.short_description}
+                </div>
+              )}
+
               <div className="bg-black text-white px-6 py-3 mb-6">
                 <h1 className="text-2xl font-normal">{product.title}</h1>
               </div>
@@ -404,7 +410,7 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
               </div>
 
               <div className="border border-gray-300 mb-6">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm font-normal">
                   <tbody>
                     {product.maker && (
                       <tr className="border-b border-gray-300">
@@ -444,14 +450,8 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
                 </table>
               </div>
 
-              {product.short_description && (
-                <div className="mb-6 text-gray-700 leading-relaxed">
-                  {product.short_description}
-                </div>
-              )}
-
               {product.full_description && (
-                <div className="mb-6 text-gray-700 leading-relaxed">
+                <div className="mb-6 text-gray-700 leading-relaxed font-jost">
                   {product.full_description}
                 </div>
               )}
