@@ -26,7 +26,6 @@ export default function Login() {
       }
 
       window.history.pushState({}, '', '/admin');
-      window.dispatchEvent(new PopStateEvent('popstate'));
     } catch (err) {
       setError('An unexpected error occurred');
       setLoading(false);
