@@ -44,10 +44,15 @@ export default function Login() {
     setLoading(true);
 
     try {
+      // Use production URL for redirect
+      const redirectUrl = window.location.hostname === 'localhost' 
+        ? `${window.location.origin}/auth/callback`
+        : 'https://warehouse414.netlify.app/auth/callback';
+
       const { error: signInError } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: redirectUrl,
         },
       });
 
