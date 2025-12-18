@@ -72,7 +72,6 @@ export default function QuickConsignorSelector({ value, onChange, onConsignorAdd
           first_name: formData.first_name,
           last_name: formData.last_name,
           consignor_code: consignorCode,
-          commission_rate: 50,
           is_active: true,
         })
         .select()
