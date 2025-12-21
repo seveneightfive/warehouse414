@@ -162,13 +162,24 @@ export default function AddInventoryForm() {
 
       console.log('Attempting to insert product:', productData);
 
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Current auth session:', session ? 'Authenticated' : 'NOT authenticated', session?.user?.email);
+
       const { data, error: err } = await supabase
         .from('products')
         .insert(productData)
         .select();
 
       if (err) {
-        console.error('Insert error details:', err);
+        console.error('Insert error details:', {
+          message: err.message,
+          code: err.code,
+          details: err.details,
+          hint: err.hint,
+          status: (err as any).status,
+          statusText: (err as any).statusText,
+          fullError: err
+        });
         throw err;
       }
 
@@ -179,9 +190,14 @@ export default function AddInventoryForm() {
       setConsignorCode('');
 
       setTimeout(() => setSuccess(null), 5000);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error adding inventory:', err);
-      setError('Failed to add inventory item. Please try again.');
+
+      if (err?.code === '401' || err?.message?.includes('JWT') || err?.message?.includes('auth')) {
+        setError('Authentication error. Please log out and log back in, then try again.');
+      } else {
+        setError(`Failed to add inventory item: ${err?.message || 'Please try again.'}`);
+      }
     } finally {
       setSubmitting(false);
     }
