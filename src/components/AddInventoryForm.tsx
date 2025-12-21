@@ -18,6 +18,7 @@ export default function AddInventoryForm() {
     purchase_price: '',
     sku: '',
   });
+  const [consignorCode, setConsignorCode] = useState<string>('');
 
   useEffect(() => {
     fetchCategories();
@@ -40,9 +41,10 @@ export default function AddInventoryForm() {
     }
   };
 
-  const generateSKU = async (categoryId: string): Promise<string> => {
+  const generateSKU = async (consignorCode: string, categoryId: string): Promise<string> => {
     try {
       const { data, error: err } = await supabase.rpc('generate_sku', {
+        consignor_code_input: consignorCode,
         category_id_input: categoryId,
       });
 
@@ -54,12 +56,52 @@ export default function AddInventoryForm() {
     }
   };
 
+  const fetchConsignorCode = async (consignorId: string): Promise<string> => {
+    try {
+      const { data, error: err } = await supabase
+        .from('consignors')
+        .select('consignor_code')
+        .eq('id', consignorId)
+        .single();
+
+      if (err) throw err;
+      return data?.consignor_code || '';
+    } catch (err) {
+      console.error('Error fetching consignor code:', err);
+      return '';
+    }
+  };
+
+  const updateSKUIfReady = async (consignorId: string, categoryId: string, currentConsignorCode?: string) => {
+    if (consignorId && categoryId) {
+      const code = currentConsignorCode || await fetchConsignorCode(consignorId);
+      if (code) {
+        const newSku = await generateSKU(code, categoryId);
+        setFormData(prev => ({ ...prev, sku: newSku }));
+      }
+    }
+  };
+
   const handleCategoryChange = async (categoryId: string) => {
-    if (categoryId) {
-      const newSku = await generateSKU(categoryId);
-      setFormData({ ...formData, category_id: categoryId, sku: newSku });
+    setFormData(prev => ({ ...prev, category_id: categoryId }));
+    if (categoryId && formData.consignor_id && consignorCode) {
+      await updateSKUIfReady(formData.consignor_id, categoryId, consignorCode);
+    } else if (!categoryId) {
+      setFormData(prev => ({ ...prev, sku: '' }));
+    }
+  };
+
+  const handleConsignorChange = async (consignorId: string) => {
+    setFormData(prev => ({ ...prev, consignor_id: consignorId }));
+    if (consignorId) {
+      const code = await fetchConsignorCode(consignorId);
+      setConsignorCode(code);
+      if (code && formData.category_id) {
+        await updateSKUIfReady(consignorId, formData.category_id, code);
+      }
     } else {
-      setFormData({ ...formData, category_id: categoryId, sku: '' });
+      setConsignorCode('');
+      setFormData(prev => ({ ...prev, sku: '' }));
     }
   };
 
@@ -114,6 +156,7 @@ export default function AddInventoryForm() {
 
       setSuccess(`Inventory item "${formData.title}" added successfully!`);
       setFormData({ title: '', category_id: '', consignor_id: '', purchase_price: '', sku: '' });
+      setConsignorCode('');
 
       setTimeout(() => setSuccess(null), 5000);
     } catch (err) {
@@ -204,7 +247,7 @@ export default function AddInventoryForm() {
           </label>
           <QuickConsignorSelector
             value={formData.consignor_id}
-            onChange={(consignorId) => setFormData({ ...formData, consignor_id: consignorId })}
+            onChange={handleConsignorChange}
           />
         </div>
 
@@ -235,6 +278,7 @@ export default function AddInventoryForm() {
             type="button"
             onClick={() => {
               setFormData({ title: '', category_id: '', consignor_id: '', purchase_price: '', sku: '' });
+              setConsignorCode('');
               setError(null);
             }}
             className="px-6 py-3 border-2 border-gray-300 tracking-[0.06em] hover:border-black transition"
