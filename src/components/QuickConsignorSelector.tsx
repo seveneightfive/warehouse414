@@ -43,8 +43,7 @@ export default function QuickConsignorSelector({ value, onChange, onConsignorAdd
     }
   };
 
-  const handleAddConsignor = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddConsignor = async () => {
     setSubmitting(true);
     setError(null);
 
@@ -130,14 +129,13 @@ export default function QuickConsignorSelector({ value, onChange, onConsignorAdd
       </button>
 
       {showAddForm && (
-        <form onSubmit={handleAddConsignor} className="p-4 bg-gray-50 border border-gray-200 space-y-3">
+        <div className="p-4 bg-gray-50 border border-gray-200 space-y-3">
           <div>
             <label className="block text-sm font-medium mb-1 tracking-[0.06em]">
               FIRST NAME *
             </label>
             <input
               type="text"
-              required
               value={formData.first_name}
               onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
               className="font-calibri w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-black text-sm"
@@ -151,7 +149,6 @@ export default function QuickConsignorSelector({ value, onChange, onConsignorAdd
             </label>
             <input
               type="text"
-              required
               value={formData.last_name}
               onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
               className="font-calibri w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-black text-sm"
@@ -166,13 +163,14 @@ export default function QuickConsignorSelector({ value, onChange, onConsignorAdd
           )}
 
           <button
-            type="submit"
+            type="button"
+            onClick={handleAddConsignor}
             disabled={submitting}
             className="w-full px-4 py-2 bg-black text-white text-sm hover:bg-gray-800 transition disabled:opacity-50"
           >
             {submitting ? 'Adding...' : 'Add Consignor'}
           </button>
-        </form>
+        </div>
       )}
     </div>
   );
