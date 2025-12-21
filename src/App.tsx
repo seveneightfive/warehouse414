@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import AuthCallback from './pages/AuthCallback';
 import { ShopStateProvider } from './contexts/ShopStateContext';
 import { AuthProvider } from './contexts/AuthContext';
+import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 
 function App() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -53,7 +54,11 @@ function App() {
     }
 
     if (currentPath === '/admin') {
-      return <Admin />;
+      return (
+        <ProtectedAdminRoute>
+          <Admin />
+        </ProtectedAdminRoute>
+      );
     }
 
     return (

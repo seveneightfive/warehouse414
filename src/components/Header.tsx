@@ -1,5 +1,6 @@
-import { Search, Menu, X } from 'lucide-react';
+import { Search, Menu, X, LogOut, LogIn } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -8,6 +9,7 @@ interface HeaderProps {
 export default function Header({ onSearch }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const { user, signOut, isAdmin } = useAuth();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,9 +48,11 @@ export default function Header({ onSearch }: HeaderProps) {
               <a href="/about" className="text-xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition">
                 ABOUT
               </a>
-              <a href="/admin" className="text-xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition">
-                ADMIN
-              </a>
+              {isAdmin && (
+                <a href="/admin" className="text-xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition">
+                  ADMIN
+                </a>
+              )}
             </nav>
 
             {/* Center: 414 Logo */}
@@ -64,19 +68,41 @@ export default function Header({ onSearch }: HeaderProps) {
               />
             </div>
 
-            {/* Right: Search Bar */}
-            <form onSubmit={handleSearch} className="hidden md:flex items-center gap-2 absolute right-4">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search..."
-                className="px-4 py-2 border border-gray-300 focus:outline-none focus:border-black transition w-64"
-              />
-              <button type="submit" className="p-2 bg-black text-white hover:bg-gray-800 transition">
-                <Search className="w-5 h-5" />
-              </button>
-            </form>
+            {/* Right: Search Bar and Auth */}
+            <div className="hidden md:flex items-center gap-2 absolute right-4">
+              <form onSubmit={handleSearch} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search..."
+                  className="px-4 py-2 border border-gray-300 focus:outline-none focus:border-black transition w-64"
+                />
+                <button type="submit" className="p-2 bg-black text-white hover:bg-gray-800 transition">
+                  <Search className="w-5 h-5" />
+                </button>
+              </form>
+              {user ? (
+                <button
+                  onClick={signOut}
+                  className="p-2 bg-black text-white hover:bg-gray-800 transition"
+                  title="Sign Out"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    window.history.pushState({}, '', '/login');
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                  }}
+                  className="p-2 bg-black text-white hover:bg-gray-800 transition"
+                  title="Sign In"
+                >
+                  <LogIn className="w-5 h-5" />
+                </button>
+              )}
+            </div>
 
             {/* Mobile Menu Button */}
             <button
@@ -135,13 +161,34 @@ export default function Header({ onSearch }: HeaderProps) {
                 >
                   ABOUT
                 </a>
-                <a
-                  href="/admin"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="text-4xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition"
-                >
-                  ADMIN
-                </a>
+                {isAdmin && (
+                  <a
+                    href="/admin"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-4xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition"
+                  >
+                    ADMIN
+                  </a>
+                )}
+                {user ? (
+                  <button
+                    onClick={() => {
+                      signOut();
+                      setIsMenuOpen(false);
+                    }}
+                    className="text-4xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition text-left"
+                  >
+                    SIGN OUT
+                  </button>
+                ) : (
+                  <a
+                    href="/login"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-4xl font-['Agency_FB','Bebas_Neue',sans-serif] tracking-wide hover:text-gray-600 transition"
+                  >
+                    SIGN IN
+                  </a>
+                )}
               </nav>
 
               {/* Mobile Search */}
