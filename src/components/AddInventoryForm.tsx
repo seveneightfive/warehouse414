@@ -16,9 +16,8 @@ export default function AddInventoryForm() {
     category_id: '',
     consignor_id: '',
     purchase_price: '',
+    sku: '',
   });
-
-  const [sku, setSku] = useState('');
 
   useEffect(() => {
     fetchCategories();
@@ -56,12 +55,11 @@ export default function AddInventoryForm() {
   };
 
   const handleCategoryChange = async (categoryId: string) => {
-    setFormData({ ...formData, category_id: categoryId });
     if (categoryId) {
       const newSku = await generateSKU(categoryId);
-      setSku(newSku);
+      setFormData({ ...formData, category_id: categoryId, sku: newSku });
     } else {
-      setSku('');
+      setFormData({ ...formData, category_id: categoryId, sku: '' });
     }
   };
 
@@ -72,14 +70,14 @@ export default function AddInventoryForm() {
     setSubmitting(true);
 
     try {
-      if (!formData.title || !formData.category_id || !formData.consignor_id) {
+      if (!formData.title || !formData.category_id || !formData.consignor_id || !formData.sku) {
         setError('Please fill in all required fields');
         setSubmitting(false);
         return;
       }
 
       const productData = {
-        sku: sku,
+        sku: formData.sku,
         title: formData.title,
         category_id: formData.category_id,
         consignor_id: formData.consignor_id,
@@ -115,8 +113,7 @@ export default function AddInventoryForm() {
       if (err) throw err;
 
       setSuccess(`Inventory item "${formData.title}" added successfully!`);
-      setFormData({ title: '', category_id: '', consignor_id: '', purchase_price: '' });
-      setSku('');
+      setFormData({ title: '', category_id: '', consignor_id: '', purchase_price: '', sku: '' });
 
       setTimeout(() => setSuccess(null), 5000);
     } catch (err) {
@@ -177,11 +174,13 @@ export default function AddInventoryForm() {
             </label>
             <input
               type="text"
-              value={sku}
-              disabled
-              className="font-calibri w-full px-4 py-3 border border-gray-300 bg-gray-100 text-gray-600"
+              required
+              value={formData.sku}
+              onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+              className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+              placeholder="Auto-generated or enter manually"
             />
-            <p className="text-xs text-gray-500 mt-1">Auto-generated</p>
+            <p className="text-xs text-gray-500 mt-1">Auto-generated (editable)</p>
           </div>
         </div>
 
@@ -235,8 +234,7 @@ export default function AddInventoryForm() {
           <button
             type="button"
             onClick={() => {
-              setFormData({ title: '', category_id: '', consignor_id: '', purchase_price: '' });
-              setSku('');
+              setFormData({ title: '', category_id: '', consignor_id: '', purchase_price: '', sku: '' });
               setError(null);
             }}
             className="px-6 py-3 border-2 border-gray-300 tracking-[0.06em] hover:border-black transition"
