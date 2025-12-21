@@ -192,6 +192,27 @@ export type Database = {
         Insert: Omit<Database['public']['Tables']['pdf_downloads']['Row'], 'id' | 'created_at'>;
         Update: Partial<Database['public']['Tables']['pdf_downloads']['Insert']>;
       };
+      designers: {
+        Row: {
+          id: string;
+          name: string;
+          about: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['designers']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['designers']['Insert']>;
+      };
+      product_designer: {
+        Row: {
+          id: string;
+          product_id: string;
+          designer_id: string;
+          created_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['product_designer']['Row'], 'id' | 'created_at'>;
+        Update: Partial<Database['public']['Tables']['product_designer']['Insert']>;
+      };
     };
   };
 };
@@ -213,3 +234,7 @@ export type ProductSale = Database['public']['Tables']['product_sales']['Row'];
 export type CrossListing = Database['public']['Tables']['cross_listings']['Row'];
 export type Review = Database['public']['Tables']['reviews']['Row'];
 export type PDFDownload = Database['public']['Tables']['pdf_downloads']['Row'];
+export type Designer = Database['public']['Tables']['designers']['Row'] & {
+  product_count?: number;
+};
+export type ProductDesigner = Database['public']['Tables']['product_designer']['Row'];

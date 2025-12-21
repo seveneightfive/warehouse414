@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Package, Users, BarChart3, Settings, Plus, CreditCard as Edit, Trash2, Eye, Calendar, FileText, Workflow } from 'lucide-react';
+import { Package, Users, BarChart3, Settings, Plus, CreditCard as Edit, Trash2, Eye, Calendar, FileText, Workflow, Palette } from 'lucide-react';
 import Layout from '../components/Layout';
 import { supabase } from '../lib/supabase';
 import type { Product, Category, Subcategory } from '../lib/types';
@@ -11,6 +11,7 @@ import SalesBatchReports from '../components/SalesBatchReports';
 import ConsignorReports from '../components/ConsignorReports';
 import AddInventoryForm from '../components/AddInventoryForm';
 import CategoryManagement from '../components/CategoryManagement';
+import DesignerManagement from '../components/DesignerManagement';
 
 type AdminTab =
   | 'products'
@@ -20,7 +21,8 @@ type AdminTab =
   | 'sales-batches'
   | 'batch-reports'
   | 'consignor-reports'
-  | 'categories';
+  | 'categories'
+  | 'designers';
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState<AdminTab>('products');
@@ -421,6 +423,18 @@ export default function Admin() {
                 >
                   <Settings className="w-5 h-5" />
                   CATEGORIES
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('designers')}
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-left transition tracking-[0.06em] ${
+                    activeTab === 'designers'
+                      ? 'bg-black text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <Palette className="w-5 h-5" />
+                  DESIGNERS
                 </button>
               </nav>
             </div>
@@ -938,8 +952,8 @@ export default function Admin() {
               {activeTab === 'sales-batches' && <SalesBatchManagement />}
               {activeTab === 'batch-reports' && <SalesBatchReports />}
               {activeTab === 'consignor-reports' && <ConsignorReports />}
-
               {activeTab === 'categories' && <CategoryManagement />}
+              {activeTab === 'designers' && <DesignerManagement />}
             </div>
           </div>
         </div>
