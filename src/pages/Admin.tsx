@@ -10,6 +10,7 @@ import SalesBatchManagement from '../components/SalesBatchManagement';
 import SalesBatchReports from '../components/SalesBatchReports';
 import ConsignorReports from '../components/ConsignorReports';
 import AddInventoryForm from '../components/AddInventoryForm';
+import CategoryManagement from '../components/CategoryManagement';
 
 type AdminTab =
   | 'products'
@@ -938,12 +939,7 @@ export default function Admin() {
               {activeTab === 'batch-reports' && <SalesBatchReports />}
               {activeTab === 'consignor-reports' && <ConsignorReports />}
 
-              {activeTab === 'categories' && (
-                <div>
-                  <h2 className="text-2xl font-normal tracking-[0.08em] mb-6">CATEGORY MANAGEMENT</h2>
-                  <p className="text-gray-600">Category management functionality coming soon...</p>
-                </div>
-              )}
+              {activeTab === 'categories' && <CategoryManagement />}
             </div>
           </div>
         </div>
