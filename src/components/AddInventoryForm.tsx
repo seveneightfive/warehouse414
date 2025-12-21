@@ -43,12 +43,17 @@ export default function AddInventoryForm() {
 
   const generateSKU = async (consignorCode: string, categoryId: string): Promise<string> => {
     try {
+      console.log('Generating SKU with:', { consignorCode, categoryId });
       const { data, error: err } = await supabase.rpc('generate_sku', {
         consignor_code_input: consignorCode,
         category_id_input: categoryId,
       });
 
-      if (err) throw err;
+      if (err) {
+        console.error('SKU generation error:', err);
+        throw err;
+      }
+      console.log('Generated SKU:', data);
       return data || '';
     } catch (err) {
       console.error('Error generating SKU:', err);
@@ -58,13 +63,18 @@ export default function AddInventoryForm() {
 
   const fetchConsignorCode = async (consignorId: string): Promise<string> => {
     try {
+      console.log('Fetching consignor code for:', consignorId);
       const { data, error: err } = await supabase
         .from('consignors')
         .select('consignor_code')
         .eq('id', consignorId)
         .single();
 
-      if (err) throw err;
+      if (err) {
+        console.error('Consignor fetch error:', err);
+        throw err;
+      }
+      console.log('Fetched consignor code:', data?.consignor_code);
       return data?.consignor_code || '';
     } catch (err) {
       console.error('Error fetching consignor code:', err);
@@ -112,6 +122,8 @@ export default function AddInventoryForm() {
     setSubmitting(true);
 
     try {
+      console.log('Form submission started with data:', formData);
+
       if (!formData.title || !formData.category_id || !formData.consignor_id || !formData.sku) {
         setError('Please fill in all required fields');
         setSubmitting(false);
@@ -148,11 +160,19 @@ export default function AddInventoryForm() {
         subcategory_id: null,
       };
 
-      const { error: err } = await supabase
-        .from('products')
-        .insert(productData);
+      console.log('Attempting to insert product:', productData);
 
-      if (err) throw err;
+      const { data, error: err } = await supabase
+        .from('products')
+        .insert(productData)
+        .select();
+
+      if (err) {
+        console.error('Insert error details:', err);
+        throw err;
+      }
+
+      console.log('Successfully inserted product:', data);
 
       setSuccess(`Inventory item "${formData.title}" added successfully!`);
       setFormData({ title: '', category_id: '', consignor_id: '', purchase_price: '', sku: '' });
