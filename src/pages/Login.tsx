@@ -61,14 +61,22 @@ export default function Login() {
 
     try {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/admin`,
+        redirectTo: `${window.location.origin}/reset-password`,
       });
 
       if (resetError) {
         console.error('Password reset error:', resetError);
-        setError(resetError.message);
+
+        if (resetError.message.includes('Email rate limit exceeded')) {
+          setError('Too many reset attempts. Please try again in a few minutes.');
+        } else if (resetError.message.includes('email not found')) {
+          setError('No account found with this email address.');
+        } else {
+          setError(`Password reset failed: ${resetError.message}`);
+        }
       } else {
         setResetSent(true);
+        console.log('Password reset email sent to:', email);
       }
     } catch (err) {
       console.error('Unexpected error during password reset:', err);
@@ -99,8 +107,12 @@ export default function Login() {
             )}
             {resetSent && (
               <div className="rounded-md bg-green-50 p-4">
-                <div className="text-sm text-green-800">
-                  Password reset email sent! Check your inbox for instructions.
+                <div className="text-sm text-green-800 space-y-2">
+                  <p className="font-medium">Password reset email sent!</p>
+                  <p>Check your inbox for a password reset link. If you don't see it, please check your spam folder.</p>
+                  <p className="text-xs text-green-700 mt-2">
+                    Note: If you're using the default Supabase email service, emails may only be delivered to authorized team members. For production use, configure a custom SMTP provider in your Supabase dashboard.
+                  </p>
                 </div>
               </div>
             )}
