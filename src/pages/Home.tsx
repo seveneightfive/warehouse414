@@ -25,7 +25,7 @@ export default function Home() {
           subcategory:subcategories(name, slug)
         `)
         .eq('is_featured', true)
-        .eq('workflow_stage', 'listed')
+        .in('status', ['available', 'on_hold', 'sold'])
         .limit(6);
 
       setFeaturedProducts(productsData || []);

@@ -187,7 +187,7 @@ export default function Shop() {
           category:categories(name, slug),
           subcategory:subcategories(name, slug)
         `)
-        .eq('workflow_stage', 'listed');
+        .in('status', ['available', 'on_hold', 'sold']);
 
       if (selectedCategory) {
         query = query.eq('category_id', selectedCategory.id);
