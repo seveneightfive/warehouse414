@@ -7,28 +7,74 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [resetSent, setResetSent] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
 
   const handlePasswordLogin = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+    setResetSent(false);
     setLoading(true);
 
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInError) {
-        setError(signInError.message);
+        console.error('Login error:', signInError);
+
+        if (signInError.message.includes('Invalid login credentials')) {
+          setError('Invalid email or password. Please check your credentials and try again.');
+        } else if (signInError.message.includes('Email not confirmed')) {
+          setError('Please confirm your email address before logging in.');
+        } else {
+          setError(signInError.message);
+        }
+
         setLoading(false);
         return;
       }
 
-      window.history.pushState({}, '', '/admin');
+      if (data.user) {
+        console.log('Login successful for:', data.user.email);
+        window.history.pushState({}, '', '/admin');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }
     } catch (err) {
-      setError('An unexpected error occurred');
+      console.error('Unexpected error during login:', err);
+      setError('An unexpected error occurred. Please try again.');
       setLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!email) {
+      setError('Please enter your email address first.');
+      return;
+    }
+
+    setResetLoading(true);
+    setError('');
+    setResetSent(false);
+
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/admin`,
+      });
+
+      if (resetError) {
+        console.error('Password reset error:', resetError);
+        setError(resetError.message);
+      } else {
+        setResetSent(true);
+      }
+    } catch (err) {
+      console.error('Unexpected error during password reset:', err);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -49,6 +95,13 @@ export default function Login() {
             {error && (
               <div className="rounded-md bg-red-50 p-4">
                 <div className="text-sm text-red-800">{error}</div>
+              </div>
+            )}
+            {resetSent && (
+              <div className="rounded-md bg-green-50 p-4">
+                <div className="text-sm text-green-800">
+                  Password reset email sent! Check your inbox for instructions.
+                </div>
               </div>
             )}
             <div className="rounded-md shadow-sm -space-y-px">
@@ -96,6 +149,17 @@ export default function Login() {
               </button>
             </div>
           </form>
+
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={handlePasswordReset}
+              disabled={resetLoading}
+              className="text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50"
+            >
+              {resetLoading ? 'Sending...' : 'Forgot your password?'}
+            </button>
+          </div>
         </div>
       </div>
     </Layout>
