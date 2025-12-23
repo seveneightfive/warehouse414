@@ -19,6 +19,7 @@ export default function AddInventoryForm() {
     sku: '',
   });
   const [consignorCode, setConsignorCode] = useState<string>('');
+  const [manualSKU, setManualSKU] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -83,7 +84,7 @@ export default function AddInventoryForm() {
   };
 
   const updateSKUIfReady = async (consignorId: string, categoryId: string, currentConsignorCode?: string) => {
-    if (consignorId && categoryId) {
+    if (!manualSKU && consignorId && categoryId) {
       const code = currentConsignorCode || await fetchConsignorCode(consignorId);
       if (code) {
         const newSku = await generateSKU(code, categoryId);
@@ -188,6 +189,7 @@ export default function AddInventoryForm() {
       setSuccess(`Inventory item "${formData.title}" added successfully!`);
       setFormData({ title: '', category_id: '', consignor_id: '', purchase_price: '', sku: '' });
       setConsignorCode('');
+      setManualSKU(false);
 
       setTimeout(() => setSuccess(null), 5000);
     } catch (err: any) {
@@ -248,18 +250,37 @@ export default function AddInventoryForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2 tracking-[0.06em]">
-              SKU *
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium tracking-[0.06em]">
+                SKU *
+              </label>
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={manualSKU}
+                  onChange={(e) => {
+                    setManualSKU(e.target.checked);
+                    if (!e.target.checked) {
+                      updateSKUIfReady(formData.consignor_id, formData.category_id, consignorCode);
+                    }
+                  }}
+                  className="w-4 h-4"
+                />
+                <span className="text-xs text-gray-600">Manual Entry</span>
+              </label>
+            </div>
             <input
               type="text"
               required
               value={formData.sku}
               onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-              className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
-              placeholder="Auto-generated or enter manually"
+              disabled={!manualSKU && (!formData.category_id || !formData.consignor_id)}
+              className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black disabled:bg-gray-100 disabled:cursor-not-allowed"
+              placeholder={manualSKU ? "Enter SKU manually" : "Auto-generated from category"}
             />
-            <p className="text-xs text-gray-500 mt-1">Auto-generated (editable)</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {manualSKU ? "Enter custom SKU" : "Auto-generated when category & consignor selected"}
+            </p>
           </div>
         </div>
 
@@ -315,6 +336,7 @@ export default function AddInventoryForm() {
             onClick={() => {
               setFormData({ title: '', category_id: '', consignor_id: '', purchase_price: '', sku: '' });
               setConsignorCode('');
+              setManualSKU(false);
               setError(null);
             }}
             className="px-6 py-3 border-2 border-gray-300 tracking-[0.06em] hover:border-black transition"
