@@ -38,6 +38,14 @@ export default function Admin() {
   const [designerSearchTerm, setDesignerSearchTerm] = useState<string>('');
   const [showDesignerDropdown, setShowDesignerDropdown] = useState<boolean>(false);
 
+  const [dashboardStats, setDashboardStats] = useState({
+    available: 0,
+    onHold: 0,
+    sold: 0,
+    inventory: 0,
+    offers: 0,
+  });
+
   const [productForm, setProductForm] = useState({
     sku: '',
     title: '',
@@ -66,6 +74,7 @@ export default function Admin() {
 
   useEffect(() => {
     fetchData();
+    fetchDashboardStats();
   }, []);
 
   const fetchData = async () => {
@@ -102,6 +111,44 @@ export default function Admin() {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDashboardStats = async () => {
+    try {
+      const { count: availableCount } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'available');
+
+      const { count: onHoldCount } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'on_hold');
+
+      const { count: soldCount } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'sold');
+
+      const { count: inventoryCount } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'inventory');
+
+      const { count: offersCount } = await supabase
+        .from('product_offers')
+        .select('*', { count: 'exact', head: true });
+
+      setDashboardStats({
+        available: availableCount ?? 0,
+        onHold: onHoldCount ?? 0,
+        sold: soldCount ?? 0,
+        inventory: inventoryCount ?? 0,
+        offers: offersCount ?? 0,
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
     }
   };
 
@@ -228,6 +275,7 @@ export default function Admin() {
 
       resetForm();
       fetchData();
+      fetchDashboardStats();
     } catch (error) {
       console.error('Error saving product:', error);
       alert('Error saving product. Please try again.');
@@ -338,6 +386,7 @@ export default function Admin() {
       if (error) throw error;
       alert('Product deleted successfully!');
       fetchData();
+      fetchDashboardStats();
     } catch (error) {
       console.error('Error deleting product:', error);
       alert('Error deleting product. Please try again.');
@@ -373,6 +422,50 @@ export default function Admin() {
               <div className="text-sm text-gray-600">
                 Welcome to the admin panel
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+            <div className="bg-white p-6 shadow-sm border-2 border-gray-200 hover:border-green-500 transition">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium tracking-[0.06em] text-gray-600">AVAILABLE</h3>
+                <Package className="w-5 h-5 text-green-600" />
+              </div>
+              <p className="text-3xl font-bold tracking-wider">{dashboardStats.available}</p>
+            </div>
+
+            <div className="bg-white p-6 shadow-sm border-2 border-gray-200 hover:border-yellow-500 transition">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium tracking-[0.06em] text-gray-600">ON HOLD</h3>
+                <Package className="w-5 h-5 text-yellow-600" />
+              </div>
+              <p className="text-3xl font-bold tracking-wider">{dashboardStats.onHold}</p>
+            </div>
+
+            <div className="bg-white p-6 shadow-sm border-2 border-gray-200 hover:border-blue-500 transition">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium tracking-[0.06em] text-gray-600">OFFERS</h3>
+                <BarChart3 className="w-5 h-5 text-blue-600" />
+              </div>
+              <p className="text-3xl font-bold tracking-wider">{dashboardStats.offers}</p>
+            </div>
+
+            <div className="bg-white p-6 shadow-sm border-2 border-gray-200 hover:border-gray-500 transition">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium tracking-[0.06em] text-gray-600">SOLD</h3>
+                <Package className="w-5 h-5 text-gray-600" />
+              </div>
+              <p className="text-3xl font-bold tracking-wider">{dashboardStats.sold}</p>
+            </div>
+
+            <div className="bg-white p-6 shadow-sm border-2 border-gray-200 hover:border-sky-500 transition">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium tracking-[0.06em] text-gray-600">INVENTORY</h3>
+                <Package className="w-5 h-5 text-sky-600" />
+              </div>
+              <p className="text-3xl font-bold tracking-wider">{dashboardStats.inventory}</p>
             </div>
           </div>
         </div>
