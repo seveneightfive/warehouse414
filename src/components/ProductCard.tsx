@@ -54,22 +54,16 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
           {product.title}
         </h3>
 
-        {product.short_description && (
-          <p className="text-sm text-gray-600 line-clamp-2 mb-3 font-light">
-            {product.short_description}
-          </p>
-        )}
-
         <div className="flex items-center justify-between">
           <div>
             {product.is_on_sale && product.sale_price && (
               <div className="flex items-center gap-2">
-                <span className="text-lg font-bold">${displayPrice.toLocaleString()}</span>
+                <span className="text-lg">${displayPrice.toLocaleString()}</span>
                 <span className="text-sm text-gray-500 line-through">${product.price.toLocaleString()}</span>
               </div>
             )}
             {(!product.is_on_sale || !product.sale_price) && (
-              <span className="text-lg font-bold">${displayPrice.toLocaleString()}</span>
+              <span className="text-lg">${displayPrice.toLocaleString()}</span>
             )}
           </div>
 
@@ -79,18 +73,6 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
             </span>
           )}
         </div>
-
-        {product.dimensions && (
-          <p className="text-xs text-gray-500 mt-2 font-light">{product.dimensions}</p>
-        )}
-
-        {product.category && (
-          <div className="mt-3 pt-3 border-t border-gray-200">
-            <span className="inline-block px-2 py-1 text-xs font-bold tracking-wider bg-black text-white">
-              {product.category.name}
-            </span>
-          </div>
-        )}
       </div>
     </div>
   );
