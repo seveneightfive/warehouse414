@@ -208,6 +208,7 @@ export type Database = {
           id: string;
           product_id: string;
           designer_id: string;
+          attribution_type: 'by' | 'in_the_style_of' | 'attributed_to';
           created_at: string;
         };
         Insert: Omit<Database['public']['Tables']['product_designer']['Row'], 'id' | 'created_at'>;
@@ -216,6 +217,8 @@ export type Database = {
     };
   };
 };
+
+export type AttributionType = 'by' | 'in_the_style_of' | 'attributed_to';
 
 export type Category = Database['public']['Tables']['categories']['Row'];
 export type Subcategory = Database['public']['Tables']['subcategories']['Row'];
@@ -226,6 +229,10 @@ export type Product = Database['public']['Tables']['products']['Row'] & {
   category?: { name: string; slug: string } | null;
   subcategory?: { name: string; slug: string } | null;
   consignor_details?: Consignor | null;
+  designer_info?: {
+    designer: Designer;
+    attribution_type: AttributionType;
+  } | null;
 };
 export type ProductImage = Database['public']['Tables']['product_images']['Row'];
 export type ProductHold = Database['public']['Tables']['product_holds']['Row'];

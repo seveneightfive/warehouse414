@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Package, Users, BarChart3, Settings, Plus, CreditCard as Edit, Trash2, Eye, Calendar, FileText, Workflow, Palette } from 'lucide-react';
 import Layout from '../components/Layout';
 import { supabase } from '../lib/supabase';
-import type { Product, Category, Subcategory } from '../lib/types';
+import type { Product, Category, Subcategory, Designer, AttributionType } from '../lib/types';
 import { ImageUploadManager, type ImageData } from '../components/ImageUploadManager';
 import ConsignorManagement from '../components/ConsignorManagement';
 import WorkflowTaskManagement from '../components/WorkflowTaskManagement';
@@ -29,9 +29,14 @@ export default function Admin() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [designers, setDesigners] = useState<Designer[]>([]);
   const [loading, setLoading] = useState(true);
   const [showProductForm, setShowProductForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [selectedDesignerId, setSelectedDesignerId] = useState<string>('');
+  const [attributionType, setAttributionType] = useState<AttributionType>('by');
+  const [designerSearchTerm, setDesignerSearchTerm] = useState<string>('');
+  const [showDesignerDropdown, setShowDesignerDropdown] = useState<boolean>(false);
 
   const [productForm, setProductForm] = useState({
     sku: '',
@@ -84,9 +89,15 @@ export default function Admin() {
         .select('*')
         .order('display_order', { ascending: true });
 
+      const { data: designersData } = await supabase
+        .from('designers')
+        .select('*')
+        .order('name', { ascending: true });
+
       setProducts(productsData || []);
       setCategories(categoriesData || []);
       setSubcategories(subcategoriesData || []);
+      setDesigners(designersData || []);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -195,6 +206,26 @@ export default function Admin() {
         }
       }
 
+      await supabase
+        .from('product_designer')
+        .delete()
+        .eq('product_id', productId);
+
+      if (selectedDesignerId) {
+        const { error: designerError } = await supabase
+          .from('product_designer')
+          .insert({
+            product_id: productId,
+            designer_id: selectedDesignerId,
+            attribution_type: attributionType,
+          });
+
+        if (designerError) {
+          console.error('Error saving designer:', designerError);
+          alert('Product saved but there was an error saving designer.');
+        }
+      }
+
       resetForm();
       fetchData();
     } catch (error) {
@@ -230,6 +261,10 @@ export default function Admin() {
     setFeaturedImageUrl(null);
     setEditingProduct(null);
     setShowProductForm(false);
+    setSelectedDesignerId('');
+    setAttributionType('by');
+    setDesignerSearchTerm('');
+    setShowDesignerDropdown(false);
   };
 
   const handleEdit = async (product: Product) => {
@@ -272,6 +307,23 @@ export default function Admin() {
         displayOrder: img.display_order,
       }));
       setProductImages(imageData);
+    }
+
+    const { data: designerRelation } = await supabase
+      .from('product_designer')
+      .select('designer_id, attribution_type, designers(name)')
+      .eq('product_id', product.id)
+      .maybeSingle();
+
+    if (designerRelation) {
+      setSelectedDesignerId(designerRelation.designer_id);
+      setAttributionType(designerRelation.attribution_type);
+      const designerName = (designerRelation.designers as any)?.name || '';
+      setDesignerSearchTerm(designerName);
+    } else {
+      setSelectedDesignerId('');
+      setAttributionType('by');
+      setDesignerSearchTerm('');
     }
 
     setShowProductForm(true);
@@ -561,31 +613,90 @@ export default function Admin() {
                           />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium mb-2 tracking-[0.06em]">
-                              MAKER
-                            </label>
-                            <input
-                              type="text"
-                              value={productForm.maker}
-                              onChange={(e) => setProductForm({ ...productForm, maker: e.target.value })}
-                              className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
-                            />
-                          </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2 tracking-[0.06em]">
+                            MAKER
+                          </label>
+                          <input
+                            type="text"
+                            value={productForm.maker}
+                            onChange={(e) => setProductForm({ ...productForm, maker: e.target.value })}
+                            className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                          />
+                        </div>
 
-                          <div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="relative">
                             <label className="block text-sm font-medium mb-2 tracking-[0.06em]">
                               DESIGNER
                             </label>
                             <input
                               type="text"
-                              value={productForm.designer}
-                              onChange={(e) =>
-                                setProductForm({ ...productForm, designer: e.target.value })
-                              }
+                              value={designerSearchTerm}
+                              onChange={(e) => {
+                                setDesignerSearchTerm(e.target.value);
+                                setShowDesignerDropdown(true);
+                              }}
+                              onFocus={() => setShowDesignerDropdown(true)}
+                              placeholder="Search for a designer..."
                               className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
                             />
+                            {showDesignerDropdown && (
+                              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 shadow-lg max-h-60 overflow-y-auto">
+                                {designers
+                                  .filter((designer) =>
+                                    designer.name.toLowerCase().includes(designerSearchTerm.toLowerCase())
+                                  )
+                                  .map((designer) => (
+                                    <div
+                                      key={designer.id}
+                                      onClick={() => {
+                                        setSelectedDesignerId(designer.id);
+                                        setDesignerSearchTerm(designer.name);
+                                        setShowDesignerDropdown(false);
+                                      }}
+                                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer font-calibri"
+                                    >
+                                      {designer.name}
+                                    </div>
+                                  ))}
+                                {designers.filter((designer) =>
+                                  designer.name.toLowerCase().includes(designerSearchTerm.toLowerCase())
+                                ).length === 0 && (
+                                  <div className="px-4 py-2 text-gray-500 font-calibri">
+                                    No designers found
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            {selectedDesignerId && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedDesignerId('');
+                                  setDesignerSearchTerm('');
+                                }}
+                                className="mt-2 text-sm text-gray-600 hover:text-black underline"
+                              >
+                                Clear selection
+                              </button>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium mb-2 tracking-[0.06em]">
+                              ATTRIBUTION TYPE
+                            </label>
+                            <select
+                              value={attributionType}
+                              onChange={(e) => setAttributionType(e.target.value as AttributionType)}
+                              className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                              disabled={!selectedDesignerId}
+                            >
+                              <option value="by">By</option>
+                              <option value="in_the_style_of">In the Style Of</option>
+                              <option value="attributed_to">Attributed To</option>
+                            </select>
                           </div>
                         </div>
 

@@ -65,6 +65,25 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
         .maybeSingle();
 
       if (productError) throw productError;
+
+      if (productData) {
+        const { data: designerRelation } = await supabase
+          .from('product_designer')
+          .select(`
+            attribution_type,
+            designer:designers(id, name, about)
+          `)
+          .eq('product_id', productId)
+          .maybeSingle();
+
+        if (designerRelation && designerRelation.designer) {
+          productData.designer_info = {
+            designer: designerRelation.designer as any,
+            attribution_type: designerRelation.attribution_type,
+          };
+        }
+      }
+
       setProduct(productData);
       if (productData.featured_image_url) {
         setSelectedImage(productData.featured_image_url);
@@ -400,6 +419,24 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
                 <h1 className="text-2xl font-normal">{product.title}</h1>
               </div>
 
+              {product.designer_info && (
+                <div className="mb-6 border-l-4 border-gray-800 pl-6 py-4 bg-gray-50">
+                  <div className="text-sm uppercase tracking-wider text-gray-600 mb-2 font-semibold">
+                    {product.designer_info.attribution_type === 'by' && 'By'}
+                    {product.designer_info.attribution_type === 'in_the_style_of' && 'In the Style Of'}
+                    {product.designer_info.attribution_type === 'attributed_to' && 'Attributed To'}
+                  </div>
+                  <div className="text-2xl font-light mb-3 text-black">
+                    {product.designer_info.designer.name}
+                  </div>
+                  {product.designer_info.designer.about && (
+                    <div className="text-sm leading-relaxed text-gray-700 font-light">
+                      {product.designer_info.designer.about}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="mb-6">
                 <div className="text-3xl font-light mb-2">${displayPrice.toLocaleString()}</div>
                 {product.is_on_sale && product.sale_price && (
@@ -418,7 +455,7 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
                         <td className="px-4 py-3">{product.maker}</td>
                       </tr>
                     )}
-                    {(product.designer || product.style_period) && (
+                    {!product.designer_info && (product.designer || product.style_period) && (
                       <tr className="border-b border-gray-300">
                         <td className="px-4 py-3 font-semibold bg-gray-50">Style / Period</td>
                         <td className="px-4 py-3">{product.designer || product.style_period || '-'}</td>
