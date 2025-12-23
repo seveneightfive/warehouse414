@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Package, Users, BarChart3, Settings, Plus, CreditCard as Edit, Trash2, Eye, Calendar, FileText, Workflow, Palette } from 'lucide-react';
+import { Package, Users, BarChart3, Settings, Plus, CreditCard as Edit, Trash2, Eye, Calendar, FileText, Workflow, Palette, X, Clock } from 'lucide-react';
 import Layout from '../components/Layout';
 import { supabase } from '../lib/supabase';
 import type { Product, Category, Subcategory, Designer, AttributionType } from '../lib/types';
@@ -24,8 +24,417 @@ type AdminTab =
   | 'categories'
   | 'designers';
 
+type DashboardView = 'available' | 'onHold' | 'offers' | 'sold' | 'inventory' | null;
+
+interface DashboardViewSectionProps {
+  view: DashboardView;
+  products: Product[];
+  onMarkAsSold: (product: Product) => void;
+  onEdit: (product: Product) => void;
+  onExtendHold: (productId: string) => void;
+  onOfferStatusChange: (offerId: string, status: 'approved' | 'rejected') => void;
+  onAddInventory: () => void;
+}
+
+function DashboardViewSection({ view, products, onMarkAsSold, onEdit, onExtendHold, onOfferStatusChange, onAddInventory }: DashboardViewSectionProps) {
+  const [holds, setHolds] = useState<any[]>([]);
+  const [offers, setOffers] = useState<any[]>([]);
+  const [sales, setSales] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (view === 'onHold') {
+      fetchHolds();
+    } else if (view === 'offers') {
+      fetchOffers();
+    } else if (view === 'sold') {
+      fetchSales();
+    }
+  }, [view]);
+
+  const fetchHolds = async () => {
+    const { data } = await supabase
+      .from('product_holds')
+      .select(`
+        *,
+        product:products(*)
+      `)
+      .eq('is_active', true)
+      .order('hold_until', { ascending: true });
+    setHolds(data || []);
+  };
+
+  const fetchOffers = async () => {
+    const { data } = await supabase
+      .from('product_offers')
+      .select(`
+        *,
+        product:products(*)
+      `)
+      .order('created_at', { ascending: false });
+    setOffers(data || []);
+  };
+
+  const fetchSales = async () => {
+    const { data } = await supabase
+      .from('product_sales')
+      .select(`
+        *,
+        product:products(*)
+      `)
+      .order('sale_date', { ascending: false });
+    setSales(data || []);
+  };
+
+  const calculateDaysRemaining = (holdUntil: string) => {
+    const today = new Date();
+    const holdDate = new Date(holdUntil);
+    const diffTime = holdDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  if (view === 'available') {
+    const availableProducts = products.filter(p => p.status === 'available');
+    return (
+      <div className="bg-white p-8 shadow-sm">
+        <h2 className="text-2xl font-normal tracking-[0.08em] mb-6">AVAILABLE PRODUCTS</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">SKU</th>
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">TITLE</th>
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PRICE</th>
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {availableProducts.map((product) => (
+                <tr key={product.id} className="border-b border-gray-200 hover:bg-gray-50">
+                  <td className="font-calibri px-4 py-3 text-sm font-medium">{product.sku}</td>
+                  <td className="font-calibri px-4 py-3 text-sm">{product.title}</td>
+                  <td className="font-calibri px-4 py-3 text-sm">${product.price.toLocaleString()}</td>
+                  <td className="font-calibri px-4 py-3 text-sm">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => window.open(`/product/${product.id}`, '_blank')}
+                        className="px-3 py-1 bg-gray-100 hover:bg-gray-200 transition text-xs tracking-[0.04em]"
+                        title="View"
+                      >
+                        VIEW
+                      </button>
+                      <button
+                        onClick={() => onEdit(product)}
+                        className="px-3 py-1 bg-gray-100 hover:bg-gray-200 transition text-xs tracking-[0.04em]"
+                        title="Edit"
+                      >
+                        EDIT
+                      </button>
+                      <button
+                        onClick={() => onMarkAsSold(product)}
+                        className="px-3 py-1 bg-green-600 text-white hover:bg-green-700 transition text-xs tracking-[0.04em]"
+                        title="Mark as Sold"
+                      >
+                        SOLD
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {availableProducts.length === 0 && (
+            <div className="text-center py-12 text-gray-600">No available products.</div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (view === 'onHold') {
+    return (
+      <div className="bg-white p-8 shadow-sm">
+        <h2 className="text-2xl font-normal tracking-[0.08em] mb-6">PRODUCTS ON HOLD</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PRODUCT</th>
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">CUSTOMER</th>
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">CONTACT</th>
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">DAYS REMAINING</th>
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {holds.map((hold) => {
+                const daysRemaining = calculateDaysRemaining(hold.hold_until);
+                return (
+                  <tr key={hold.id} className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="font-calibri px-4 py-3 text-sm">
+                      <div className="font-medium">{hold.product?.sku}</div>
+                      <div className="text-gray-600">{hold.product?.title}</div>
+                    </td>
+                    <td className="font-calibri px-4 py-3 text-sm">{hold.customer_name}</td>
+                    <td className="font-calibri px-4 py-3 text-sm">
+                      <div>{hold.customer_email}</div>
+                      <div className="text-gray-600">{hold.customer_phone}</div>
+                    </td>
+                    <td className="font-calibri px-4 py-3 text-sm">
+                      <span className={`px-2 py-1 text-xs font-medium ${
+                        daysRemaining < 0 ? 'bg-red-100 text-red-800' :
+                        daysRemaining <= 7 ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-green-100 text-green-800'
+                      }`}>
+                        {daysRemaining} days
+                      </span>
+                    </td>
+                    <td className="font-calibri px-4 py-3 text-sm">
+                      <button
+                        onClick={() => onExtendHold(hold.product_id)}
+                        className="px-3 py-1 bg-blue-600 text-white hover:bg-blue-700 transition text-xs tracking-[0.04em]"
+                      >
+                        EXTEND
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          {holds.length === 0 && (
+            <div className="text-center py-12 text-gray-600">No products on hold.</div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (view === 'offers') {
+    const pendingOffers = offers.filter(o => o.status === 'pending');
+    const approvedOffers = offers.filter(o => o.status === 'approved');
+    const rejectedOffers = offers.filter(o => o.status === 'rejected');
+
+    return (
+      <div className="bg-white p-8 shadow-sm space-y-8">
+        <div>
+          <h2 className="text-2xl font-normal tracking-[0.08em] mb-6">PENDING OFFERS</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PRODUCT</th>
+                  <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">CUSTOMER</th>
+                  <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">OFFER</th>
+                  <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">MESSAGE</th>
+                  <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingOffers.map((offer) => (
+                  <tr key={offer.id} className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="font-calibri px-4 py-3 text-sm">{offer.product?.title}</td>
+                    <td className="font-calibri px-4 py-3 text-sm">
+                      <div>{offer.customer_name}</div>
+                      <div className="text-xs text-gray-600">{offer.customer_email}</div>
+                    </td>
+                    <td className="font-calibri px-4 py-3 text-sm font-medium">${offer.offer_amount.toLocaleString()}</td>
+                    <td className="font-calibri px-4 py-3 text-sm">{offer.message || '-'}</td>
+                    <td className="font-calibri px-4 py-3 text-sm">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => onOfferStatusChange(offer.id, 'approved')}
+                          className="px-3 py-1 bg-green-600 text-white hover:bg-green-700 transition text-xs tracking-[0.04em]"
+                        >
+                          APPROVE
+                        </button>
+                        <button
+                          onClick={() => onOfferStatusChange(offer.id, 'rejected')}
+                          className="px-3 py-1 bg-red-600 text-white hover:bg-red-700 transition text-xs tracking-[0.04em]"
+                        >
+                          REJECT
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {pendingOffers.length === 0 && (
+              <div className="text-center py-12 text-gray-600">No pending offers.</div>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <h2 className="text-xl font-normal tracking-[0.08em] mb-4 text-green-600">APPROVED OFFERS</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PRODUCT</th>
+                  <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">CUSTOMER</th>
+                  <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">OFFER</th>
+                  <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">DATE</th>
+                </tr>
+              </thead>
+              <tbody>
+                {approvedOffers.map((offer) => (
+                  <tr key={offer.id} className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="font-calibri px-4 py-3 text-sm">{offer.product?.title}</td>
+                    <td className="font-calibri px-4 py-3 text-sm">{offer.customer_name}</td>
+                    <td className="font-calibri px-4 py-3 text-sm font-medium">${offer.offer_amount.toLocaleString()}</td>
+                    <td className="font-calibri px-4 py-3 text-sm">{new Date(offer.created_at).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {approvedOffers.length === 0 && (
+              <div className="text-center py-8 text-gray-600 text-sm">No approved offers.</div>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <h2 className="text-xl font-normal tracking-[0.08em] mb-4 text-red-600">REJECTED OFFERS</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PRODUCT</th>
+                  <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">CUSTOMER</th>
+                  <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">OFFER</th>
+                  <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">DATE</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rejectedOffers.map((offer) => (
+                  <tr key={offer.id} className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="font-calibri px-4 py-3 text-sm">{offer.product?.title}</td>
+                    <td className="font-calibri px-4 py-3 text-sm">{offer.customer_name}</td>
+                    <td className="font-calibri px-4 py-3 text-sm font-medium">${offer.offer_amount.toLocaleString()}</td>
+                    <td className="font-calibri px-4 py-3 text-sm">{new Date(offer.created_at).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {rejectedOffers.length === 0 && (
+              <div className="text-center py-8 text-gray-600 text-sm">No rejected offers.</div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (view === 'sold') {
+    return (
+      <div className="bg-white p-8 shadow-sm">
+        <h2 className="text-2xl font-normal tracking-[0.08em] mb-6">SOLD PRODUCTS</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PRODUCT</th>
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">SALE PRICE</th>
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PLATFORM</th>
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">SALE DATE</th>
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">NOTES</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sales.map((sale) => (
+                <tr key={sale.id} className="border-b border-gray-200 hover:bg-gray-50">
+                  <td className="font-calibri px-4 py-3 text-sm">
+                    <div className="font-medium">{sale.product?.sku}</div>
+                    <div className="text-gray-600">{sale.product?.title}</div>
+                  </td>
+                  <td className="font-calibri px-4 py-3 text-sm font-medium">${sale.sale_price.toLocaleString()}</td>
+                  <td className="font-calibri px-4 py-3 text-sm">{sale.sold_on_platform}</td>
+                  <td className="font-calibri px-4 py-3 text-sm">{new Date(sale.sale_date).toLocaleDateString()}</td>
+                  <td className="font-calibri px-4 py-3 text-sm">{sale.notes || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {sales.length === 0 && (
+            <div className="text-center py-12 text-gray-600">No sold products.</div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (view === 'inventory') {
+    const inventoryProducts = products.filter(p => p.status === 'inventory');
+    return (
+      <div className="bg-white p-8 shadow-sm">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-normal tracking-[0.08em]">INVENTORY</h2>
+          <button
+            onClick={onAddInventory}
+            className="flex items-center gap-2 px-6 py-3 bg-black text-white hover:bg-gray-800 transition tracking-[0.06em]"
+          >
+            <Plus className="w-5 h-5" />
+            ADD INVENTORY
+          </button>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">SKU</th>
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">TITLE</th>
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PRICE</th>
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">WORKFLOW</th>
+                <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {inventoryProducts.map((product) => (
+                <tr key={product.id} className="border-b border-gray-200 hover:bg-gray-50">
+                  <td className="font-calibri px-4 py-3 text-sm font-medium">{product.sku}</td>
+                  <td className="font-calibri px-4 py-3 text-sm">{product.title}</td>
+                  <td className="font-calibri px-4 py-3 text-sm">${product.price.toLocaleString()}</td>
+                  <td className="font-calibri px-4 py-3 text-sm">
+                    <span className="px-2 py-1 text-xs bg-gray-100 text-gray-800">{product.workflow_stage.toUpperCase()}</span>
+                  </td>
+                  <td className="font-calibri px-4 py-3 text-sm">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => window.open(`/product/${product.id}`, '_blank')}
+                        className="px-3 py-1 bg-gray-100 hover:bg-gray-200 transition text-xs tracking-[0.04em]"
+                        title="View"
+                      >
+                        VIEW
+                      </button>
+                      <button
+                        onClick={() => onEdit(product)}
+                        className="px-3 py-1 bg-gray-100 hover:bg-gray-200 transition text-xs tracking-[0.04em]"
+                        title="Edit"
+                      >
+                        EDIT
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {inventoryProducts.length === 0 && (
+            <div className="text-center py-12 text-gray-600">No inventory items.</div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
 export default function Admin() {
   const [activeTab, setActiveTab] = useState<AdminTab>('products');
+  const [dashboardView, setDashboardView] = useState<DashboardView>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
@@ -37,6 +446,14 @@ export default function Admin() {
   const [attributionType, setAttributionType] = useState<AttributionType>('by');
   const [designerSearchTerm, setDesignerSearchTerm] = useState<string>('');
   const [showDesignerDropdown, setShowDesignerDropdown] = useState<boolean>(false);
+  const [showSoldModal, setShowSoldModal] = useState(false);
+  const [selectedProductForSale, setSelectedProductForSale] = useState<Product | null>(null);
+  const [saleForm, setSaleForm] = useState({
+    sale_price: '',
+    sold_on_platform: 'warehouse414',
+    sale_date: new Date().toISOString().split('T')[0],
+    notes: '',
+  });
 
   const [dashboardStats, setDashboardStats] = useState({
     available: 0,
@@ -398,6 +815,93 @@ export default function Admin() {
     setFeaturedImageUrl(featured);
   };
 
+  const handleMarkAsSold = async (product: Product) => {
+    setSelectedProductForSale(product);
+    setSaleForm({
+      sale_price: product.sale_price?.toString() || product.price.toString(),
+      sold_on_platform: 'warehouse414',
+      sale_date: new Date().toISOString().split('T')[0],
+      notes: '',
+    });
+    setShowSoldModal(true);
+  };
+
+  const handleSoldSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProductForSale) return;
+
+    try {
+      await supabase.from('product_sales').insert({
+        product_id: selectedProductForSale.id,
+        sale_price: parseFloat(saleForm.sale_price),
+        sold_on_platform: saleForm.sold_on_platform,
+        sale_date: saleForm.sale_date,
+        notes: saleForm.notes,
+      });
+
+      await supabase
+        .from('products')
+        .update({ status: 'sold' })
+        .eq('id', selectedProductForSale.id);
+
+      alert('Product marked as sold successfully!');
+      setShowSoldModal(false);
+      setSelectedProductForSale(null);
+      fetchData();
+      fetchDashboardStats();
+    } catch (error) {
+      console.error('Error marking product as sold:', error);
+      alert('Error marking product as sold. Please try again.');
+    }
+  };
+
+  const handleExtendHold = async (productId: string) => {
+    const extendDays = prompt('Extend hold by how many days?', '45');
+    if (!extendDays) return;
+
+    try {
+      const { data: hold } = await supabase
+        .from('product_holds')
+        .select('*')
+        .eq('product_id', productId)
+        .eq('is_active', true)
+        .single();
+
+      if (!hold) return;
+
+      const newHoldUntil = new Date(hold.hold_until);
+      newHoldUntil.setDate(newHoldUntil.getDate() + parseInt(extendDays));
+
+      await supabase
+        .from('product_holds')
+        .update({ hold_until: newHoldUntil.toISOString() })
+        .eq('id', hold.id);
+
+      alert(`Hold extended by ${extendDays} days!`);
+      fetchData();
+    } catch (error) {
+      console.error('Error extending hold:', error);
+      alert('Error extending hold. Please try again.');
+    }
+  };
+
+  const handleOfferStatusChange = async (offerId: string, newStatus: 'approved' | 'rejected') => {
+    try {
+      await supabase
+        .from('product_offers')
+        .update({ status: newStatus })
+        .eq('id', offerId);
+
+      alert(`Offer ${newStatus} successfully!`);
+      fetchData();
+      setDashboardView(null);
+      setTimeout(() => setDashboardView('offers'), 100);
+    } catch (error) {
+      console.error('Error updating offer:', error);
+      alert('Error updating offer. Please try again.');
+    }
+  };
+
   const filteredSubcategories = subcategories.filter(
     (sub) => sub.category_id === productForm.category_id
   );
@@ -428,46 +932,92 @@ export default function Admin() {
 
         <div className="container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-            <div className="bg-white p-6 shadow-sm border-2 border-gray-200 hover:border-green-500 transition">
+            <button
+              onClick={() => setDashboardView(dashboardView === 'available' ? null : 'available')}
+              className={`bg-white p-6 shadow-sm border-2 transition text-left ${
+                dashboardView === 'available' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-500'
+              }`}
+            >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium tracking-[0.06em] text-gray-600">AVAILABLE</h3>
                 <Package className="w-5 h-5 text-green-600" />
               </div>
               <p className="text-3xl font-bold tracking-wider">{dashboardStats.available}</p>
-            </div>
+            </button>
 
-            <div className="bg-white p-6 shadow-sm border-2 border-gray-200 hover:border-yellow-500 transition">
+            <button
+              onClick={() => setDashboardView(dashboardView === 'onHold' ? null : 'onHold')}
+              className={`bg-white p-6 shadow-sm border-2 transition text-left ${
+                dashboardView === 'onHold' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 hover:border-yellow-500'
+              }`}
+            >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium tracking-[0.06em] text-gray-600">ON HOLD</h3>
                 <Package className="w-5 h-5 text-yellow-600" />
               </div>
               <p className="text-3xl font-bold tracking-wider">{dashboardStats.onHold}</p>
-            </div>
+            </button>
 
-            <div className="bg-white p-6 shadow-sm border-2 border-gray-200 hover:border-blue-500 transition">
+            <button
+              onClick={() => setDashboardView(dashboardView === 'offers' ? null : 'offers')}
+              className={`bg-white p-6 shadow-sm border-2 transition text-left ${
+                dashboardView === 'offers' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-500'
+              }`}
+            >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium tracking-[0.06em] text-gray-600">OFFERS</h3>
                 <BarChart3 className="w-5 h-5 text-blue-600" />
               </div>
               <p className="text-3xl font-bold tracking-wider">{dashboardStats.offers}</p>
-            </div>
+            </button>
 
-            <div className="bg-white p-6 shadow-sm border-2 border-gray-200 hover:border-gray-500 transition">
+            <button
+              onClick={() => setDashboardView(dashboardView === 'sold' ? null : 'sold')}
+              className={`bg-white p-6 shadow-sm border-2 transition text-left ${
+                dashboardView === 'sold' ? 'border-gray-500 bg-gray-50' : 'border-gray-200 hover:border-gray-500'
+              }`}
+            >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium tracking-[0.06em] text-gray-600">SOLD</h3>
                 <Package className="w-5 h-5 text-gray-600" />
               </div>
               <p className="text-3xl font-bold tracking-wider">{dashboardStats.sold}</p>
-            </div>
+            </button>
 
-            <div className="bg-white p-6 shadow-sm border-2 border-gray-200 hover:border-sky-500 transition">
+            <button
+              onClick={() => setDashboardView(dashboardView === 'inventory' ? null : 'inventory')}
+              className={`bg-white p-6 shadow-sm border-2 transition text-left ${
+                dashboardView === 'inventory' ? 'border-sky-500 bg-sky-50' : 'border-gray-200 hover:border-sky-500'
+              }`}
+            >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium tracking-[0.06em] text-gray-600">INVENTORY</h3>
                 <Package className="w-5 h-5 text-sky-600" />
               </div>
               <p className="text-3xl font-bold tracking-wider">{dashboardStats.inventory}</p>
-            </div>
+            </button>
           </div>
+
+          {dashboardView && (
+            <div className="mb-8">
+              <DashboardViewSection
+                view={dashboardView}
+                products={products}
+                onMarkAsSold={handleMarkAsSold}
+                onEdit={(product) => {
+                  handleEdit(product);
+                  setActiveTab('products');
+                  setDashboardView(null);
+                }}
+                onExtendHold={handleExtendHold}
+                onOfferStatusChange={handleOfferStatusChange}
+                onAddInventory={() => {
+                  setActiveTab('add-inventory');
+                  setDashboardView(null);
+                }}
+              />
+            </div>
+          )}
         </div>
 
         <div className="container mx-auto px-4 py-8">
@@ -1162,6 +1712,110 @@ export default function Admin() {
           </div>
         </div>
       </div>
+
+      {showSoldModal && selectedProductForSale && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white max-w-md w-full p-8 shadow-lg">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-normal tracking-[0.08em]">MARK AS SOLD</h3>
+              <button
+                onClick={() => {
+                  setShowSoldModal(false);
+                  setSelectedProductForSale(null);
+                }}
+                className="p-2 hover:bg-gray-100 rounded transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="mb-6 p-4 bg-gray-50">
+              <div className="font-medium tracking-[0.04em]">{selectedProductForSale.sku}</div>
+              <div className="text-gray-600">{selectedProductForSale.title}</div>
+            </div>
+
+            <form onSubmit={handleSoldSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2 tracking-[0.06em]">
+                  SALE PRICE *
+                </label>
+                <input
+                  type="number"
+                  required
+                  min="0"
+                  step="0.01"
+                  value={saleForm.sale_price}
+                  onChange={(e) => setSaleForm({ ...saleForm, sale_price: e.target.value })}
+                  className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2 tracking-[0.06em]">
+                  SOLD ON PLATFORM *
+                </label>
+                <select
+                  required
+                  value={saleForm.sold_on_platform}
+                  onChange={(e) => setSaleForm({ ...saleForm, sold_on_platform: e.target.value })}
+                  className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                >
+                  <option value="warehouse414">Warehouse 414</option>
+                  <option value="1stdibs">1stDibs</option>
+                  <option value="charish">Charish</option>
+                  <option value="ebay">eBay</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2 tracking-[0.06em]">
+                  SALE DATE *
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={saleForm.sale_date}
+                  onChange={(e) => setSaleForm({ ...saleForm, sale_date: e.target.value })}
+                  className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2 tracking-[0.06em]">
+                  NOTES
+                </label>
+                <textarea
+                  value={saleForm.notes}
+                  onChange={(e) => setSaleForm({ ...saleForm, notes: e.target.value })}
+                  rows={3}
+                  className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
+                  placeholder="Additional notes about the sale..."
+                />
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button
+                  type="submit"
+                  className="flex-1 px-6 py-3 bg-green-600 text-white tracking-[0.06em] hover:bg-green-700 transition"
+                >
+                  CONFIRM SALE
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSoldModal(false);
+                    setSelectedProductForSale(null);
+                  }}
+                  className="flex-1 px-6 py-3 border-2 border-gray-300 tracking-[0.06em] hover:border-black transition"
+                >
+                  CANCEL
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 }
