@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Star, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Layout from '../components/Layout';
 import ProductCard from '../components/ProductCard';
 import CategoryGrid from '../components/CategoryGrid';
@@ -47,6 +47,15 @@ export default function Home() {
 
   const handleProductClick = (productId: string) => {
     window.location.href = `/product/${productId}`;
+  };
+
+  const formatReviewDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
   };
 
   if (loading) {
@@ -137,26 +146,24 @@ export default function Home() {
               {reviews.map((review) => (
                 <div
                   key={review.id}
-                  className="bg-white p-6 border border-gray-200 hover:border-black transition"
+                  className="bg-white p-8 border border-gray-200 hover:border-black transition flex flex-col items-center text-center"
                 >
-                  <div className="flex items-center gap-1 mb-4">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-5 h-5 ${
-                          i < review.rating
-                            ? 'fill-black stroke-black'
-                            : 'stroke-gray-300'
-                        }`}
-                      />
-                    ))}
+                  <div className="text-gray-200 mb-6">
+                    <svg width="80" height="64" viewBox="0 0 80 64" fill="currentColor" className="opacity-30">
+                      <path d="M0 35.2C0 20.8 4.8 10.4 14.4 4C19.2 0.8 24 0 28.8 1.6L24 12.8C20 12 16.8 13.6 14.4 17.6C12 21.6 10.8 27.2 10.8 34.4H28.8V64H0V35.2ZM51.2 35.2C51.2 20.8 56 10.4 65.6 4C70.4 0.8 75.2 0 80 1.6L75.2 12.8C71.2 12 68 13.6 65.6 17.6C63.2 21.6 62 27.2 62 34.4H80V64H51.2V35.2Z" />
+                    </svg>
                   </div>
 
-                  <p className="text-gray-700 mb-4 leading-relaxed font-light">
-                    {review.review_text}
+                  <p className="text-gray-700 mb-6 leading-[1.36] font-light" style={{ fontFamily: 'Inter, sans-serif', fontSize: '16px' }}>
+                    "{review.review_text}"
                   </p>
 
-                  <p className="font-bold tracking-wider text-sm">{review.customer_name}</p>
+                  <p className="font-light text-gray-400 text-sm mb-1">
+                    {review.review_source || review.customer_name}
+                  </p>
+                  <p className="text-gray-400 text-sm font-light">
+                    {formatReviewDate(review.created_at)}
+                  </p>
                 </div>
               ))}
             </div>

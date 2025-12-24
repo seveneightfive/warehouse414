@@ -176,6 +176,7 @@ export type Database = {
           review_text: string;
           rating: number;
           is_featured: boolean;
+          review_source: string | null;
           created_at: string;
         };
         Insert: Omit<Database['public']['Tables']['reviews']['Row'], 'id' | 'created_at'>;
