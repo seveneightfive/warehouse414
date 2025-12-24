@@ -161,7 +161,7 @@ export default function Home() {
                   <p className="font-light text-gray-400 text-sm mb-1">
                     {review.review_source || review.customer_name}
                   </p>
-                  <p className="text-gray-400 text-sm font-light">
+                  <p className="text-gray-400 text-xs font-light" style={{ fontFamily: 'Jost, sans-serif' }}>
                     {formatReviewDate(review.created_at)}
                   </p>
                 </div>
