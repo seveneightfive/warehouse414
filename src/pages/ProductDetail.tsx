@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ShoppingCart, DollarSign, Clock, FileText, X, ChevronRight } from 'lucide-react';
+import { ShoppingCart, DollarSign, Clock, FileText, X, ChevronRight, ChevronLeft } from 'lucide-react';
 import Layout from '../components/Layout';
 import { supabase } from '../lib/supabase';
 import type { Product, ProductImage, ProductHold } from '../lib/types';
@@ -15,6 +15,9 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
   const [activeHold, setActiveHold] = useState<ProductHold | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showHoldModal, setShowHoldModal] = useState(false);
@@ -51,6 +54,19 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
   useEffect(() => {
     fetchProductData();
   }, [productId]);
+
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        previousImage();
+      } else if (e.key === 'ArrowRight') {
+        nextImage();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [currentImageIndex, product, images]);
 
   const fetchProductData = async () => {
     try {
@@ -273,6 +289,74 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
     }
   };
 
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      nextImage();
+    }
+    if (isRightSwipe) {
+      previousImage();
+    }
+  };
+
+  const nextImage = () => {
+    if (!product) return;
+    const allImages = getAllImages();
+    const newIndex = (currentImageIndex + 1) % allImages.length;
+    setCurrentImageIndex(newIndex);
+    setSelectedImage(allImages[newIndex]);
+  };
+
+  const previousImage = () => {
+    if (!product) return;
+    const allImages = getAllImages();
+    const newIndex = currentImageIndex === 0 ? allImages.length - 1 : currentImageIndex - 1;
+    setCurrentImageIndex(newIndex);
+    setSelectedImage(allImages[newIndex]);
+  };
+
+  const selectImageByIndex = (index: number) => {
+    const allImages = getAllImages();
+    setCurrentImageIndex(index);
+    setSelectedImage(allImages[index]);
+  };
+
+  const getAllImages = () => {
+    if (!product) return [];
+    const imageUrls = new Set<string>();
+    const imageList: string[] = [];
+
+    if (product.featured_image_url) {
+      imageUrls.add(product.featured_image_url);
+      imageList.push(product.featured_image_url);
+    }
+
+    images.forEach((img) => {
+      if (!imageUrls.has(img.image_url)) {
+        imageUrls.add(img.image_url);
+        imageList.push(img.image_url);
+      }
+    });
+
+    return imageList;
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -299,24 +383,7 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
   const displayPrice =
     product.is_on_sale && product.sale_price ? product.sale_price : product.price;
 
-  const allImages = (() => {
-    const imageUrls = new Set<string>();
-    const imageList: string[] = [];
-
-    if (product.featured_image_url) {
-      imageUrls.add(product.featured_image_url);
-      imageList.push(product.featured_image_url);
-    }
-
-    images.forEach((img) => {
-      if (!imageUrls.has(img.image_url)) {
-        imageUrls.add(img.image_url);
-        imageList.push(img.image_url);
-      }
-    });
-
-    return imageList;
-  })();
+  const allImages = getAllImages();
 
   return (
     <Layout>
@@ -343,12 +410,18 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-7">
-              <div className="relative aspect-square bg-gray-100 mb-4">
+              <div
+                className="relative aspect-square bg-gray-100 mb-4 select-none"
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+              >
                 {selectedImage ? (
                   <img
                     src={selectedImage}
                     alt={product.title}
                     className="w-full h-full object-cover"
+                    draggable={false}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -356,20 +429,53 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
                   </div>
                 )}
 
+                {allImages.length > 1 && (
+                  <>
+                    <button
+                      onClick={previousImage}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 transition z-10"
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                    </button>
+                    <button
+                      onClick={nextImage}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 transition z-10"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </button>
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                      {allImages.map((_, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => selectImageByIndex(idx)}
+                          className={`w-2 h-2 rounded-full transition ${
+                            idx === currentImageIndex
+                              ? 'bg-white'
+                              : 'bg-white bg-opacity-50 hover:bg-opacity-75'
+                          }`}
+                          aria-label={`View image ${idx + 1}`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+
                 {product.status === 'on_hold' && (
-                  <div className="absolute top-4 right-4 bg-amber-600 text-white px-4 py-2 text-xs font-semibold uppercase">
+                  <div className="absolute top-4 right-4 bg-amber-600 text-white px-4 py-2 text-xs font-semibold uppercase z-10">
                     On Hold
                   </div>
                 )}
 
                 {product.status === 'sold' && (
-                  <div className="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 text-xs font-semibold uppercase">
+                  <div className="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 text-xs font-semibold uppercase z-10">
                     Sold
                   </div>
                 )}
 
                 {product.is_on_sale && product.status === 'available' && (
-                  <div className="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 text-xs font-semibold uppercase">
+                  <div className="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 text-xs font-semibold uppercase z-10">
                     Sale
                   </div>
                 )}
@@ -377,7 +483,7 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
                 {product.category && (
                   <a
                     href={`/shop?category=${product.category.slug}`}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 bg-black text-white px-3 py-16 hover:bg-gray-800 transition"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 bg-black text-white px-3 py-16 hover:bg-gray-800 transition z-10"
                     style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
                   >
                     <span className="text-sm font-semibold tracking-widest uppercase">
@@ -392,9 +498,9 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
                   {allImages.map((img, idx) => (
                     <button
                       key={idx}
-                      onClick={() => setSelectedImage(img)}
+                      onClick={() => selectImageByIndex(idx)}
                       className={`aspect-square border-2 ${
-                        selectedImage === img ? 'border-black' : 'border-gray-300'
+                        currentImageIndex === idx ? 'border-black' : 'border-gray-300'
                       } hover:border-black transition`}
                     >
                       <img
