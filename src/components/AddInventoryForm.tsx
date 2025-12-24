@@ -274,8 +274,7 @@ export default function AddInventoryForm() {
               required
               value={formData.sku}
               onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-              disabled={!manualSKU && (!formData.category_id || !formData.consignor_id)}
-              className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="font-calibri w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black"
               placeholder={manualSKU ? "Enter SKU manually" : "Auto-generated from category"}
             />
             <p className="text-xs text-gray-500 mt-1">
