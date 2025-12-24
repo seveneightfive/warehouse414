@@ -1062,7 +1062,7 @@ export default function Admin() {
 
                 <button
                   onClick={() => setActiveTab('workflow')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-left transition tracking-[0.06em] ${
+                  className={`hidden w-full flex items-center gap-3 px-4 py-3 text-left transition tracking-[0.06em] ${
                     activeTab === 'workflow'
                       ? 'bg-black text-white'
                       : 'bg-white text-gray-700 hover:bg-gray-100'
@@ -1074,7 +1074,7 @@ export default function Admin() {
 
                 <button
                   onClick={() => setActiveTab('sales-batches')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-left transition tracking-[0.06em] ${
+                  className={`hidden w-full flex items-center gap-3 px-4 py-3 text-left transition tracking-[0.06em] ${
                     activeTab === 'sales-batches'
                       ? 'bg-black text-white'
                       : 'bg-white text-gray-700 hover:bg-gray-100'
@@ -1086,7 +1086,7 @@ export default function Admin() {
 
                 <button
                   onClick={() => setActiveTab('batch-reports')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-left transition tracking-[0.06em] ${
+                  className={`hidden w-full flex items-center gap-3 px-4 py-3 text-left transition tracking-[0.06em] ${
                     activeTab === 'batch-reports'
                       ? 'bg-black text-white'
                       : 'bg-white text-gray-700 hover:bg-gray-100'
@@ -1098,7 +1098,7 @@ export default function Admin() {
 
                 <button
                   onClick={() => setActiveTab('consignor-reports')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-left transition tracking-[0.06em] ${
+                  className={`hidden w-full flex items-center gap-3 px-4 py-3 text-left transition tracking-[0.06em] ${
                     activeTab === 'consignor-reports'
                       ? 'bg-black text-white'
                       : 'bg-white text-gray-700 hover:bg-gray-100'
