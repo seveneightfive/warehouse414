@@ -100,6 +100,18 @@ export default function ConsignorManagement() {
 
         if (error) throw error;
         alert('Consignor updated successfully!');
+
+        if (viewingConsignor && viewingConsignor.id === editingConsignor.id) {
+          const { data: updatedConsignor } = await supabase
+            .from('consignors')
+            .select('*')
+            .eq('id', editingConsignor.id)
+            .single();
+
+          if (updatedConsignor) {
+            setViewingConsignor(updatedConsignor);
+          }
+        }
       } else {
         const { error } = await supabase.from('consignors').insert(consignorData);
 
