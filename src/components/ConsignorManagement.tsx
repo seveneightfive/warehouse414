@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit, UserCheck, UserX, Package } from 'lucide-react';
+import { Plus, Edit, Package, ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import type { Consignor } from '../lib/types';
+import type { Consignor, Product } from '../lib/types';
 
 export default function ConsignorManagement() {
   const [consignors, setConsignors] = useState<Consignor[]>([]);
@@ -9,6 +9,8 @@ export default function ConsignorManagement() {
   const [showForm, setShowForm] = useState(false);
   const [editingConsignor, setEditingConsignor] = useState<Consignor | null>(null);
   const [productCounts, setProductCounts] = useState<Record<string, number>>({});
+  const [viewingConsignor, setViewingConsignor] = useState<Consignor | null>(null);
+  const [consignorProducts, setConsignorProducts] = useState<Product[]>([]);
 
   const [form, setForm] = useState({
     consignor_code: '',
@@ -128,7 +130,8 @@ export default function ConsignorManagement() {
     setShowForm(false);
   };
 
-  const handleEdit = (consignor: Consignor) => {
+  const handleEdit = (consignor: Consignor, e: React.MouseEvent) => {
+    e.stopPropagation();
     setEditingConsignor(consignor);
     setForm({
       consignor_code: consignor.consignor_code,
@@ -143,23 +146,149 @@ export default function ConsignorManagement() {
     setShowForm(true);
   };
 
-  const toggleActive = async (consignor: Consignor) => {
+  const handleViewConsignor = async (consignor: Consignor) => {
+    setViewingConsignor(consignor);
     try {
-      const { error } = await supabase
-        .from('consignors')
-        .update({ is_active: !consignor.is_active })
-        .eq('id', consignor.id);
+      const { data } = await supabase
+        .from('products')
+        .select('*')
+        .eq('consignor_id', consignor.id)
+        .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      fetchConsignors();
+      setConsignorProducts(data || []);
     } catch (error) {
-      console.error('Error toggling consignor status:', error);
-      alert('Error updating consignor status. Please try again.');
+      console.error('Error fetching consignor products:', error);
     }
+  };
+
+  const handleBackToList = () => {
+    setViewingConsignor(null);
+    setConsignorProducts([]);
   };
 
   if (loading) {
     return <div className="text-center py-12">Loading consignors...</div>;
+  }
+
+  if (viewingConsignor) {
+    const inventoryProducts = consignorProducts.filter(p => p.status === 'inventory');
+    const availableProducts = consignorProducts.filter(p => p.status === 'available');
+    const soldProducts = consignorProducts.filter(p => p.status === 'sold');
+
+    return (
+      <div>
+        <div className="flex items-center gap-4 mb-6">
+          <button
+            onClick={handleBackToList}
+            className="p-2 hover:bg-gray-100 rounded transition"
+            title="Back to list"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <h2 className="text-2xl font-normal tracking-[0.08em]">
+            {viewingConsignor.first_name} {viewingConsignor.last_name} ({viewingConsignor.consignor_code})
+          </h2>
+        </div>
+
+        <div className="space-y-8">
+          <div>
+            <h3 className="text-xl font-normal tracking-[0.08em] mb-4 pb-2 border-b-2 border-gray-300">
+              INVENTORY ({inventoryProducts.length})
+            </h3>
+            {inventoryProducts.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">TITLE</th>
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">ACQUISITION DATE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {inventoryProducts.map((product) => (
+                      <tr key={product.id} className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="font-calibri px-4 py-3 text-sm">{product.title}</td>
+                        <td className="font-calibri px-4 py-3 text-sm">
+                          {product.created_at ? new Date(product.created_at).toLocaleDateString() : '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm">No inventory items</p>
+            )}
+          </div>
+
+          <div>
+            <h3 className="text-xl font-normal tracking-[0.08em] mb-4 pb-2 border-b-2 border-gray-300">
+              AVAILABLE ({availableProducts.length})
+            </h3>
+            {availableProducts.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">SKU</th>
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">TITLE</th>
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">POSTED DATE</th>
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">PRICE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {availableProducts.map((product) => (
+                      <tr key={product.id} className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="font-calibri px-4 py-3 text-sm font-medium">{product.sku}</td>
+                        <td className="font-calibri px-4 py-3 text-sm">{product.title}</td>
+                        <td className="font-calibri px-4 py-3 text-sm">
+                          {product.created_at ? new Date(product.created_at).toLocaleDateString() : '-'}
+                        </td>
+                        <td className="font-calibri px-4 py-3 text-sm">${product.price?.toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm">No available products</p>
+            )}
+          </div>
+
+          <div>
+            <h3 className="text-xl font-normal tracking-[0.08em] mb-4 pb-2 border-b-2 border-gray-300">
+              SOLD ({soldProducts.length})
+            </h3>
+            {soldProducts.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">TITLE</th>
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">SOLD PRICE</th>
+                      <th className="font-calibri px-4 py-3 text-left text-sm font-medium tracking-[0.04em]">DATE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {soldProducts.map((product) => (
+                      <tr key={product.id} className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="font-calibri px-4 py-3 text-sm">{product.title}</td>
+                        <td className="font-calibri px-4 py-3 text-sm">${product.price?.toFixed(2)}</td>
+                        <td className="font-calibri px-4 py-3 text-sm">
+                          {product.updated_at ? new Date(product.updated_at).toLocaleDateString() : '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm">No sold products</p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -296,7 +425,11 @@ export default function ConsignorManagement() {
           </thead>
           <tbody>
             {consignors.map((consignor) => (
-              <tr key={consignor.id} className="border-b border-gray-200 hover:bg-gray-50">
+              <tr
+                key={consignor.id}
+                className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
+                onClick={() => handleViewConsignor(consignor)}
+              >
                 <td className="font-calibri px-4 py-3 text-sm font-medium">{consignor.consignor_code}</td>
                 <td className="font-calibri px-4 py-3 text-sm">
                   {consignor.first_name} {consignor.last_name}
@@ -321,26 +454,13 @@ export default function ConsignorManagement() {
                   </span>
                 </td>
                 <td className="font-calibri px-4 py-3 text-sm">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleEdit(consignor)}
-                      className="p-2 hover:bg-gray-200 rounded transition"
-                      title="Edit"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => toggleActive(consignor)}
-                      className="p-2 hover:bg-gray-200 rounded transition"
-                      title={consignor.is_active ? 'Deactivate' : 'Activate'}
-                    >
-                      {consignor.is_active ? (
-                        <UserX className="w-4 h-4 text-red-600" />
-                      ) : (
-                        <UserCheck className="w-4 h-4 text-green-600" />
-                      )}
-                    </button>
-                  </div>
+                  <button
+                    onClick={(e) => handleEdit(consignor, e)}
+                    className="p-2 hover:bg-gray-200 rounded transition"
+                    title="Edit"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
                 </td>
               </tr>
             ))}
