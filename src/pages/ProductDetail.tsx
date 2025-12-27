@@ -176,7 +176,7 @@ const ProductDetail = () => {
             {product.materials && (
               <div className="mt-6">
                 <p className="font-body text-sm">
-                  <span className="text-muted-foreground">Materials:</span> {product.materials}
+                  <span className="text-muted-foreground">MATERIALS:</span> {product.materials}
                 </p>
               </div>
             )}
@@ -197,7 +197,7 @@ const ProductDetail = () => {
                 )}
                 {product.box_dimensions && (
                   <p className="font-body text-sm mt-1">
-                    <span className="text-muted-foreground">Shipping Box:</span> {product.box_dimensions}
+                    <span className="text-muted-foreground">Created Size:</span> {product.box_dimensions}
                   </p>
                 )}
               </div>
