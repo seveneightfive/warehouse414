@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
+```
+
+**For Netlify**, create a `public/_redirects` file:
+```
+/*    /index.html   200
